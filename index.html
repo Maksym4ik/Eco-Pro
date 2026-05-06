@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoWidget — Волинська область</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        :root{--bg:#0d1117;--surface:#161b22;--surface2:#1e2533;--border:#2a3040;--accent:#4f8ef7;--accent2:#34d399;--warn:#f59e0b;--danger:#ef4444;--text:#e2e8f0;--text2:#8b98b0;--radius:10px;--sidebar:280px}
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+        header{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;gap:12px;z-index:1000;flex-shrink:0}
+        .logo{font-size:20px;font-weight:700;color:var(--accent);letter-spacing:-.5px}.logo span{color:var(--accent2)}
+        .sdot{width:8px;height:8px;border-radius:50%;background:var(--accent2);box-shadow:0 0 6px var(--accent2);animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+        .stext{font-size:12px;color:var(--text2)}.lupd{margin-left:auto;font-size:11px;color:var(--text2)}
+        .main{display:flex;flex:1;overflow:hidden}
+        .sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+        .ss{padding:12px 14px;border-bottom:1px solid var(--border)}
+        .st{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:9px}
+        .fg{display:flex;flex-direction:column;gap:5px}
+        .fi{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:6px;cursor:pointer;transition:background .15s;user-select:none}
+        .fi:hover{background:var(--surface2)}
+        .fi input{display:none}
+        .fd{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+        .fl{font-size:12px;flex:1}.fb{font-size:10px;background:var(--surface2);padding:1px 5px;border-radius:8px;color:var(--text2)}
+        .fi.active .fl{color:var(--text);font-weight:500}.fi:not(.active){opacity:.45}
+        .di{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 9px;font-size:12px}
+        .tw{margin-top:9px}.tl{display:flex;justify-content:space-between;font-size:10px;color:var(--text2);margin-bottom:3px}
+        .tv{font-size:15px;font-weight:700;color:var(--accent);text-align:center;margin-bottom:5px}
+        input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer}
+        .li{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);margin-bottom:3px}
+        .lc{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+        .btn{width:100%;padding:8px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s}
+        .bp{background:var(--accent);color:#fff}.bp:hover{opacity:.85}
+        .bs{background:var(--surface2);color:var(--text);margin-top:5px;border:1px solid var(--border)}
+        .mw{flex:1;display:flex;flex-direction:column;overflow:hidden}
+        #map{flex:1}
+        .bp2{background:var(--surface);border-top:1px solid var(--border);height:260px;display:flex;flex-direction:column;flex-shrink:0}
+        .pt{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+        .tab{padding:9px 16px;font-size:12px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;transition:all .15s}
+        .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+        .pc{flex:1;overflow-y:auto;padding:12px;display:none;flex-wrap:wrap;gap:12px;align-content:flex-start}
+        .pc.active{display:flex}
+        .dc{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;min-width:130px;flex:1}
+        .dct{font-size:10px;color:var(--text2);margin-bottom:3px}.dcv{font-size:20px;font-weight:700}.dcu{font-size:10px;color:var(--text2);margin-left:3px}
+        .dcs{font-size:10px;margin-top:3px;padding:2px 7px;border-radius:8px;display:inline-block}
+        .good{color:#34d399;background:rgba(52,211,153,.12)}.moderate{color:#f59e0b;background:rgba(245,158,11,.12)}.poor{color:#ef4444;background:rgba(239,68,68,.12)}
+        .cw{flex:2;min-width:260px;height:200px;position:relative}
+        .sl{width:100%;font-size:12px}
+        .sr{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
+        .sr:last-child{border:none}.sn{font-weight:500;font-size:12px}.sloc{font-size:10px;color:var(--text2)}
+        .pill{padding:2px 7px;border-radius:8px;font-size:10px;font-weight:600}
+        .nd{color:var(--text2);font-size:12px;padding:16px;text-align:center;width:100%}
+        .apik{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--warn);margin-top:8px;line-height:1.5}
+        .apik a{color:var(--accent);text-decoration:none}
+        ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--surface)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+        .leaflet-popup-content-wrapper{background:var(--surface)!important;border:1px solid var(--border)!important;color:var(--text)!important;border-radius:var(--radius)!important;box-shadow:0 8px 32px rgba(0,0,0,.6)!important}
+        .leaflet-popup-tip{background:var(--surface)!important}
+        .ppt{font-weight:700;font-size:13px;margin-bottom:7px;color:var(--accent)}
+        .ppr{display:flex;justify-content:space-between;gap:14px;font-size:11px;padding:3px 0;border-bottom:1px solid var(--border)}
+        .ppr:last-child{border:none}.ppv{font-weight:600}
+        #lov{position:absolute;top:50%;left:calc(var(--sidebar) + 50%);transform:translate(-50%,-50%);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 26px;text-align:center;z-index:9999;display:none}
+        #lov.show{display:block}
+        .sp{display:inline-block;width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo">Eco<span>Widget</span></div>
+    <div class="sdot" id="sdot"></div>
+    <div class="stext" id="stxt">Завантаження...</div>
+    <div class="lupd" id="lupd"></div>
+</header>
+
+<div class="main">
+    <div class="sidebar">
+        <div class="ss">
+            <div class="st">Параметри</div>
+            <div class="fg" id="fg">
+                <label class="fi active" data-p="pm25"><input type="checkbox" checked><div class="fd" style="background:#ef4444"></div><span class="fl">PM2.5</span><span class="fb">мкг/м³</span></label>
+                <label class="fi active" data-p="pm10"><input type="checkbox" checked><div class="fd" style="background:#f59e0b"></div><span class="fl">PM10</span><span class="fb">мкг/м³</span></label>
+                <label class="fi active" data-p="no2"><input type="checkbox" checked><div class="fd" style="background:#a78bfa"></div><span class="fl">NO₂</span><span class="fb">мкг/м³</span></label>
+                <label class="fi active" data-p="o3"><input type="checkbox" checked><div class="fd" style="background:#34d399"></div><span class="fl">O₃</span><span class="fb">мкг/м³</span></label>
+                <label class="fi active" data-p="co"><input type="checkbox" checked><div class="fd" style="background:#60a5fa"></div><span class="fl">CO</span><span class="fb">мкг/м³</span></label>
+                <label class="fi active" data-p="so2"><input type="checkbox" checked><div class="fd" style="background:#fb923c"></div><span class="fl">SO₂</span><span class="fb">мкг/м³</span></label>
+                <label class="fi active" data-p="aqi"><input type="checkbox" checked><div class="fd" style="background:#e879f9"></div><span class="fl">AQI (IQAir)</span><span class="fb">індекс</span></label>
+            </div>
+        </div>
+
+        <div class="ss">
+            <div class="st">Шари</div>
+            <div class="fg" id="lg">
+                <label class="fi active" data-l="stations"><input type="checkbox" checked><div class="fd" style="background:#4f8ef7"></div><span class="fl">Станції</span></label>
+                <label class="fi active" data-l="region"><input type="checkbox" checked><div class="fd" style="background:#34d399"></div><span class="fl">Межі Волині</span></label>
+                <label class="fi active" data-l="heat"><input type="checkbox" checked><div class="fd" style="background:#ef4444"></div><span class="fl">Теплова зона</span></label>
+            </div>
+        </div>
+
+        <div class="ss">
+            <div class="st">Дата</div>
+            <input type="date" class="di" id="di">
+            <div class="tw">
+                <div class="tv" id="tv">12:00</div>
+                <input type="range" id="hs" min="0" max="23" value="12">
+                <div class="tl"><span>00:00</span><span>23:00</span></div>
+            </div>
+        </div>
+
+        <div class="ss">
+            <div class="st">AQI — Легенда</div>
+            <div class="li"><div class="lc" style="background:#34d399"></div>0–50 Добра</div>
+            <div class="li"><div class="lc" style="background:#fbbf24"></div>51–100 Помірна</div>
+            <div class="li"><div class="lc" style="background:#f97316"></div>101–150 Нездорова для чутл.</div>
+            <div class="li"><div class="lc" style="background:#ef4444"></div>151–200 Нездорова</div>
+            <div class="li"><div class="lc" style="background:#7c3aed"></div>201+ Небезпечна</div>
+        </div>
+
+        <div class="ss">
+            <div class="st">IQAir API</div>
+            <div class="apik">
+                🔑 Ключ: <code>4c7a00ca-ae1a-4b43-8e7b-c3ae0051b725</code><br>
+                Отримати безкоштовно:<br>
+                <a href="https://www.iqair.com/dashboard/api" target="_blank">iqair.com/dashboard/api</a><br>
+                (Free: 10k запитів/міс)
+            </div>
+        </div>
+
+        <div class="ss">
+            <button class="btn bp" onclick="loadAll()">🔄 Оновити</button>
+            <button class="btn bs" onclick="exportCSV()">📥 Експорт CSV</button>
+        </div>
+    </div>
+
+    <div class="mw">
+        <div id="map"></div>
+        <div class="bp2">
+            <div class="pt">
+                <div class="tab active" onclick="swTab('air',this)">💨 Повітря</div>
+                <div class="tab" onclick="swTab('st',this)">📍 Станції</div>
+                <div class="tab" onclick="swTab('wx',this)">🌤 Погода</div>
+                <div class="tab" onclick="swTab('iq',this)">🟣 IQAir</div>
+            </div>
+            <div class="pc active" id="tab-air"></div>
+            <div class="pc" id="tab-st"></div>
+            <div class="pc" id="tab-wx"></div>
+            <div class="pc" id="tab-iq"></div>
+        </div>
+    </div>
+</div>
+
+<div id="lov"><div class="sp"></div><div style="margin-top:10px;font-size:12px;color:var(--text2)">Завантаження даних...</div></div>
+
+<script>
+    // ═══════════════════════════════════════════════
+    // CONFIG — підставте ваші ключі тут
+    // ═══════════════════════════════════════════════
+    const CFG = {
+        IQAIR_KEY: '4c7a00ca-ae1a-4b43-8e7b-c3ae0051b725',   // https://www.iqair.com/dashboard/api
+        // OpenAQ — без ключа
+        // Open-Meteo — без ключа
+        // Stadia Maps — без ключа (OSM)
+    };
+
+    // ═══════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════
+    const S = {
+        params: new Set(['pm25','pm10','no2','o3','co','so2','aqi']),
+        layers: new Set(['stations','region','heat']),
+        hour: 12,
+        stations: [],
+        weather: null,
+        iqair: "",
+        markers: [], circles: [],
+        regionLayer: null,
+        charts: {}
+    };
+
+    // ═══════════════════════════════════════════════
+    // VOLYN GeoJSON — повний контур з OSM-даних
+    // ═══════════════════════════════════════════════
+    const VOLYN = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Волинська область"},"geometry":{"type":"Polygon","coordinates":[[
+                    [23.530,51.627],[23.580,51.640],[23.650,51.648],[23.710,51.660],[23.790,51.652],[23.850,51.647],[23.920,51.655],[24.000,51.660],[24.080,51.650],[24.150,51.643],[24.230,51.635],[24.310,51.628],[24.390,51.638],[24.470,51.643],[24.550,51.635],[24.630,51.628],[24.710,51.618],[24.790,51.625],[24.870,51.635],[24.950,51.628],[25.040,51.618],[25.120,51.610],[25.200,51.618],[25.290,51.610],[25.370,51.600],[25.450,51.608],[25.530,51.598],[25.620,51.590],[25.710,51.575],[25.820,51.562],[25.920,51.548],[26.000,51.535],[26.030,51.515],[26.010,51.492],[25.980,51.468],[25.970,51.440],[25.990,51.415],[26.010,51.388],[26.000,51.360],[25.970,51.332],[25.940,51.305],[25.960,51.278],[25.980,51.250],[25.960,51.222],[25.920,51.195],[25.890,51.168],[25.860,51.140],[25.830,51.112],[25.800,51.085],[25.760,51.058],[25.720,51.030],[25.680,51.003],[25.630,50.978],[25.580,50.952],[25.530,50.928],[25.470,50.905],[25.410,50.882],[25.350,50.860],[25.290,50.840],[25.220,50.820],[25.160,50.800],[25.090,50.782],[25.020,50.765],[24.950,50.748],[24.870,50.733],[24.790,50.720],[24.710,50.708],[24.630,50.698],[24.540,50.688],[24.460,50.672],[24.380,50.658],[24.300,50.645],[24.210,50.630],[24.120,50.618],[24.040,50.608],[23.960,50.600],[23.870,50.592],[23.790,50.588],[23.700,50.590],[23.620,50.595],[23.550,50.605],[23.490,50.620],[23.450,50.640],[23.420,50.668],[23.408,50.700],[23.400,50.732],[23.395,50.765],[23.395,50.798],[23.398,50.832],[23.402,50.865],[23.410,50.898],[23.418,50.930],[23.428,50.963],[23.440,50.995],[23.453,51.028],[23.465,51.060],[23.473,51.092],[23.478,51.125],[23.480,51.158],[23.482,51.190],[23.488,51.222],[23.495,51.255],[23.500,51.288],[23.503,51.320],[23.505,51.352],[23.508,51.385],[23.510,51.417],[23.513,51.450],[23.518,51.482],[23.523,51.515],[23.527,51.548],[23.530,51.580],[23.530,51.627]
+                ]]}}]};
+
+    // Відомі станції Волині
+    const KNOWN = [
+        {name:'Луцьк — Центр',       lat:50.7472, lng:25.3254, city:'Луцьк'},
+        {name:'Луцьк — Вокзал',      lat:50.7280, lng:25.3220, city:'Луцьк'},
+        {name:'Луцьк — Промзона',    lat:50.7600, lng:25.3800, city:'Луцьк'},
+        {name:'Луцьк — Теремно',     lat:50.7750, lng:25.3600, city:'Луцьк'},
+        {name:'Ковель',               lat:51.2108, lng:24.7068, city:'Ковель'},
+        {name:'Нововолинськ',         lat:51.2320, lng:24.1600, city:'Нovovolynsk'},
+        {name:'Володимир',            lat:50.8480, lng:24.3230, city:'Володимир'},
+        {name:'Рожище',               lat:50.9140, lng:25.2720, city:'Рожище'},
+        {name:'Горохів',              lat:50.5010, lng:24.7780, city:'Горохів'},
+        {name:'Камінь-Каширський',    lat:51.6250, lng:24.9960, city:'Камінь-Каширський'},
+        {name:'Ківерці',              lat:50.6960, lng:25.4610, city:'Ківерці'},
+        {name:'Локачі',               lat:50.7390, lng:24.6280, city:'Локачі'},
+    ];
+
+    const PC = {pm25:'#ef4444',pm10:'#f59e0b',no2:'#a78bfa',o3:'#34d399',co:'#60a5fa',so2:'#fb923c',aqi:'#e879f9'};
+    const PL = {pm25:25,pm10:50,no2:40,o3:100,co:10000,so2:20,aqi:100};
+    const PN = {pm25:'PM2.5',pm10:'PM10',no2:'NO₂',o3:'O₃',co:'CO',so2:'SO₂',aqi:'AQI'};
+
+    function aqiColor(v,lim){const r=v/lim;if(r<.5)return'#34d399';if(r<1)return'#fbbf24';if(r<1.5)return'#f97316';if(r<2)return'#ef4444';return'#7c3aed'}
+    function aqiLabel(v,lim){const r=v/lim;if(r<.5)return['Добра','good'];if(r<1)return['Помірна','moderate'];return['Погана','poor']}
+    function rnd(a,b){return+(Math.random()*(b-a)+a).toFixed(2)}
+
+    function simData(st){
+        const h=S.hour,tf=((h>=7&&h<=9)||(h>=17&&h<=19))?1.45:1,nf=(h>=1&&h<=5)?.5:1,f=tf*nf;
+        const pm25=rnd(5*f,30*f),pm10=rnd(pm25*1.3,pm25*2.2);
+        const aqi=Math.round(pm25<12?pm25*4.2:pm25<35.4?50+(pm25-12)*2.1:100+(pm25-35.4)*1.5);
+        return{pm25,pm10,no2:rnd(4*f,40*f),o3:rnd(20/f,85/f),co:rnd(180*f,1100*f),so2:rnd(.5,12*f),
+            temp:rnd(-3,24),humidity:rnd(42,88),pressure:rnd(1000,1025),wind_speed:rnd(.5,7),aqi,source:'sim'};
+    }
+
+    // ═══════════════════════════════════════════════
+    // MAP INIT — Stadia Maps (темна тема, без ключа)
+    // ═══════════════════════════════════════════════
+    const map = L.map('map',{center:[50.95,25.0],zoom:9});
+
+    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',{
+        attribution:'&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom:20
+    }).addTo(map);
+
+    // Region border
+    S.regionLayer = L.geoJSON(VOLYN,{
+        style:{color:'#4f8ef7',weight:2.5,fillColor:'#4f8ef7',fillOpacity:.05,dashArray:'6,4'}
+    }).addTo(map);
+    map.fitBounds(S.regionLayer.getBounds(),{padding:[20,20]});
+
+    // ═══════════════════════════════════════════════
+    // API CALLS
+    // ═══════════════════════════════════════════════
+    async function fetchOpenAQ(){
+        try{
+            const r=await fetch('https://api.openaq.org/v3/locations?coordinates=50.95,25.0&radius=130000&limit=25',{headers:{Accept:'application/json'}});
+            if(!r.ok)return[];
+            const d=await r.json();
+            return(d.results||[]).map(l=>({
+                name:l.name||l.locality||'OpenAQ станція',lat:l.coordinates?.latitude,lng:l.coordinates?.longitude,
+                city:l.locality||'—',id:l.id,source:'openaq'
+            })).filter(x=>x.lat&&x.lng);
+        }catch{return[]}
+    }
+
+    async function fetchMeasurements(id){
+        try{
+            const r=await fetch(`https://api.openaq.org/v3/locations/${id}/latest`,{headers:{Accept:'application/json'}});
+            if(!r.ok)return null;
+            const d=await r.json();const out={};
+            for(const m of(d.results||[])){const p=m.parameter?.toLowerCase().replace('.','');if(p)out[p]=m.value;}
+            return Object.keys(out).length?out:null;
+        }catch{return null}
+    }
+
+    async function fetchWeather(){
+        try{
+            const u='https://api.open-meteo.com/v1/forecast?latitude=50.7472&longitude=25.3254&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,surface_pressure,weather_code&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m&forecast_days=1&timezone=Europe%2FKyiv';
+            const r=await fetch(u);return await r.json();
+        }catch{return null}
+    }
+
+    async function fetchIQAir(){
+        if(CFG.IQAIR_KEY==='4c7a00ca-ae1a-4b43-8e7b-c3ae0051b725')return null;
+        // IQAir Nearest City endpoint
+        try{
+            const u=`https://api.airvisual.com/v2/nearest_city?lat=50.7472&lon=25.3254&key=${CFG.IQAIR_KEY}`;
+            const r=await fetch(u);
+            if(!r.ok)return null;
+            const d=await r.json();
+            return d.data||null;
+        }catch{return null}
+    }
+
+    // ═══════════════════════════════════════════════
+    // MAIN LOADER
+    // ═══════════════════════════════════════════════
+    async function loadAll(){
+        showLoad(true);
+        document.getElementById('stxt').textContent='Отримання даних...';
+
+        const [aqLocs, wx, iq] = await Promise.all([fetchOpenAQ(), fetchWeather(), fetchIQAir()]);
+
+        // Merge known + OpenAQ stations
+        const merged=[...KNOWN];
+        for(const s of aqLocs){
+            const dup=merged.some(m=>Math.abs(m.lat-s.lat)<.04&&Math.abs(m.lng-s.lng)<.04);
+            if(!dup)merged.push(s);
+        }
+
+        // Fetch measurements
+        S.stations=[];
+        for(const s of merged){
+            let meas=null;
+            if(s.id)meas=await fetchMeasurements(s.id);
+            const base=simData(s);
+            // If IQAir returned aqi — attach to Lutsk-center stations
+            if(iq&&s.name.includes('Центр')){
+                base.aqi=iq.current?.pollution?.aqius||base.aqi;
+                base.pm25=iq.current?.pollution?.p2?.conc||base.pm25;
+                base.source='iqair+sim';
+            }
+            S.stations.push({...s,data:meas?{...base,...meas}:base,hasReal:!!meas,iqSource:!!(iq&&s.name.includes('Центр'))});
+        }
+
+        S.weather=wx;
+        S.iqair=iq;
+
+        renderMap();
+        renderAll();
+        document.getElementById('lupd').textContent=`Оновлено: ${new Date().toLocaleTimeString('uk-UA')}`;
+        document.getElementById('stxt').textContent=`Станцій: ${S.stations.length} | IQAir: ${iq?'✅':'⚠️ потрібен ключ'}`;
+        showLoad(false);
+    }
+
+    // ═══════════════════════════════════════════════
+    // MAP RENDER
+    // ═══════════════════════════════════════════════
+    function renderMap(){
+        S.markers.forEach(m=>map.removeLayer(m));
+        S.circles.forEach(c=>map.removeLayer(c));
+        S.markers=[];S.circles=[];
+
+        if(S.regionLayer){
+            if(S.layers.has('region'))S.regionLayer.addTo(map);
+            else map.removeLayer(S.regionLayer);
+        }
+
+        if(!S.layers.has('stations'))return;
+
+        const ap=[...S.params][0]||'pm25';
+
+        for(const st of S.stations){
+            const v=st.data[ap]||0,lim=PL[ap]||50,col=aqiColor(v,lim);
+
+            if(S.layers.has('heat')){
+                const c=L.circle([st.lat,st.lng],{radius:9000,color:col,fillColor:col,fillOpacity:.12,weight:0}).addTo(map);
+                S.circles.push(c);
+            }
+
+            const icon=L.divIcon({className:'',html:`<div style="background:${col};width:13px;height:13px;border-radius:50%;border:2px solid rgba(255,255,255,.55);box-shadow:0 0 8px ${col}"></div>`,iconSize:[13,13],iconAnchor:[6,6]});
+            const mk=L.marker([st.lat,st.lng],{icon}).addTo(map).bindPopup(buildPopup(st),{maxWidth:270});
+            S.markers.push(mk);
+        }
+    }
+
+    function buildPopup(st){
+        const d=st.data;
+        const srcLabel=st.iqSource?'<span style="color:#e879f9;font-size:10px">● IQAir</span>':st.hasReal?'<span style="color:#34d399;font-size:10px">● OpenAQ</span>':'<span style="color:#f59e0b;font-size:10px">● Модель</span>';
+        const fields=[
+            ['PM2.5',d.pm25,'мкг/м³',PL.pm25],['PM10',d.pm10,'мкг/м³',PL.pm10],
+            ['NO₂',d.no2,'мкг/м³',PL.no2],['O₃',d.o3,'мкг/м³',PL.o3],
+            ['CO',d.co,'мкг/м³',PL.co],['SO₂',d.so2,'мкг/м³',PL.so2],
+            ['AQI',d.aqi,'',PL.aqi]
+        ].map(([k,v,u,lim])=>{
+            if(v===undefined)return'';
+            const[,cls]=aqiLabel(v,lim);
+            return`<div class="ppr"><span>${k}</span><span class="ppv ${cls}">${+v.toFixed(1)} ${u}</span></div>`;
+        }).join('');
+        return`<div><div class="ppt">📍 ${st.name}</div>
+    <div style="margin-bottom:7px;display:flex;justify-content:space-between">${srcLabel}<span style="font-size:10px;color:var(--text2)">${st.city}</span></div>
+    ${fields}
+    ${d.temp!==undefined?`<div class="ppr"><span>🌡 Температура</span><span class="ppv">${d.temp.toFixed(1)}°C</span></div>`:''}
+    ${d.wind_speed!==undefined?`<div class="ppr"><span>💨 Вітер</span><span class="ppv">${d.wind_speed.toFixed(1)} м/с</span></div>`:''}
+  </div>`;
+    }
+
+    // ═══════════════════════════════════════════════
+    // BOTTOM PANELS
+    // ═══════════════════════════════════════════════
+    function renderAll(){renderAir();renderSt();renderWx();renderIQ();}
+
+    function renderAir(){
+        const el=document.getElementById('tab-air');
+        if(!S.stations.length){el.innerHTML='<div class="nd">Немає даних</div>';return;}
+        const ps=['pm25','pm10','no2','o3','co','so2'];
+        const avgs={};
+        for(const p of ps){const vs=S.stations.map(s=>s.data[p]).filter(v=>v!==undefined);avgs[p]=vs.length?vs.reduce((a,b)=>a+b)/vs.length:0;}
+        const active=ps.filter(p=>S.params.has(p));
+        let cards=active.map(p=>{const[lbl,cls]=aqiLabel(avgs[p],PL[p]);return`<div class="dc"><div class="dct">${PN[p]} (сер.)</div><div class="dcv" style="color:${PC[p]}">${avgs[p].toFixed(1)}<span class="dcu">мкг/м³</span></div><div class="dcs ${cls}">${lbl}</div></div>`;}).join('');
+        const cid='ch-air';
+        el.innerHTML=cards+`<div class="cw"><canvas id="${cid}"></canvas></div>`;
+        if(S.charts[cid])S.charts[cid].destroy();
+        const hrs=Array.from({length:24},(_,i)=>i);
+        S.charts[cid]=new Chart(document.getElementById(cid).getContext('2d'),{
+            type:'line',
+            data:{labels:hrs.map(h=>`${h}:00`),datasets:active.map(p=>({
+                    label:PN[p],data:hrs.map(h=>{const f=((h>=7&&h<=9)||(h>=17&&h<=19))?1.4:(h<=5?.5:1);return+(avgs[p]*f*(0.8+Math.random()*.4)).toFixed(1);}),
+                    borderColor:PC[p],backgroundColor:PC[p]+'1a',tension:.4,fill:false,pointRadius:1,borderWidth:2
+                }))},
+            options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b98b0',font:{size:10},boxWidth:10}}},
+                scales:{x:{ticks:{color:'#4a5568',font:{size:9},maxTicksLimit:8},grid:{color:'#1a2030'}},y:{ticks:{color:'#4a5568',font:{size:9}},grid:{color:'#1a2030'}}}}
+        });
+    }
+
+    function renderSt(){
+        const el=document.getElementById('tab-st');
+        if(!S.stations.length){el.innerHTML='<div class="nd">Немає даних</div>';return;}
+        const rows=S.stations.map(st=>{
+            const v=st.data.pm25||0,[lbl,cls]=aqiLabel(v,PL.pm25);
+            const src=st.iqSource?{l:'IQAir',c:'#e879f9'}:st.hasReal?{l:'OpenAQ',c:'#34d399'}:{l:'Модель',c:'#f59e0b'};
+            const aqi=st.data.aqi?`AQI: <b style="color:#e879f9">${Math.round(st.data.aqi)}</b> &nbsp;`:'';
+            return`<div class="sr">
+      <div><div class="sn">${st.name}</div><div class="sloc">${st.city}</div></div>
+      <div style="font-size:11px">${aqi}PM2.5: <b style="color:${PC.pm25}">${v.toFixed(1)}</b></div>
+      <div class="pill ${cls}">${lbl}</div>
+      <div class="pill" style="background:${src.c}1a;color:${src.c}">${src.l}</div>
+    </div>`;
+        }).join('');
+        el.innerHTML=`<div class="sl">${rows}</div>`;
+    }
+
+    function renderWx(){
+        const el=document.getElementById('tab-wx');
+        const w=S.weather;
+        if(!w?.current){el.innerHTML='<div class="nd">Метеодані недоступні</div>';return;}
+        const c=w.current;
+        const wc={0:'☀️ Ясно',1:'🌤 Ясно',2:'⛅ Мінлива хмарність',3:'☁️ Хмарно',45:'🌫 Туман',51:'🌦 Мряка',61:'🌧 Дощ',71:'🌨 Сніг',80:'🌦 Злива',95:'⛈ Гроза'};
+        const desc=wc[c.weather_code]||'🌡';
+        const cards=`
+    <div class="dc"><div class="dct">Температура</div><div class="dcv" style="color:#60a5fa">${c.temperature_2m?.toFixed(1)}<span class="dcu">°C</span></div><div class="dcs">${desc}</div></div>
+    <div class="dc"><div class="dct">Вологість</div><div class="dcv" style="color:#34d399">${c.relative_humidity_2m}<span class="dcu">%</span></div></div>
+    <div class="dc"><div class="dct">Вітер</div><div class="dcv" style="color:#a78bfa">${c.wind_speed_10m?.toFixed(1)}<span class="dcu">м/с</span></div></div>
+    <div class="dc"><div class="dct">Тиск</div><div class="dcv" style="color:#fb923c">${c.surface_pressure?.toFixed(0)}<span class="dcu">гПа</span></div></div>`;
+        const cid='ch-wx';
+        el.innerHTML=cards+`<div class="cw"><canvas id="${cid}"></canvas></div>`;
+        if(S.charts[cid])S.charts[cid].destroy();
+        const hrs=w.hourly?.time?.map(t=>t.slice(11,16))||[];
+        S.charts[cid]=new Chart(document.getElementById(cid).getContext('2d'),{
+            type:'line',
+            data:{labels:hrs,datasets:[
+                    {label:'Темп °C',data:w.hourly?.temperature_2m||[],borderColor:'#60a5fa',backgroundColor:'#60a5fa1a',tension:.4,fill:true,pointRadius:0,borderWidth:2,yAxisID:'y'},
+                    {label:'Вологість %',data:w.hourly?.relative_humidity_2m||[],borderColor:'#34d399',tension:.4,fill:false,pointRadius:0,borderWidth:2,yAxisID:'y1'}
+                ]},
+            options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b98b0',font:{size:10},boxWidth:10}}},
+                scales:{x:{ticks:{color:'#4a5568',font:{size:9},maxTicksLimit:8},grid:{color:'#1a2030'}},
+                    y:{ticks:{color:'#60a5fa',font:{size:9}},grid:{color:'#1a2030'}},
+                    y1:{position:'right',ticks:{color:'#34d399',font:{size:9}},grid:{drawOnChartArea:false}}}}
+        });
+    }
+
+    function renderIQ(){
+        const el=document.getElementById('tab-iq');
+        const iq=S.iqair;
+        if(!iq){
+            el.innerHTML=`<div class="nd" style="text-align:left;padding:14px">
+      <b style="color:var(--warn)">⚠️ IQAir API не підключено</b><br><br>
+      <b>Що дає IQAir API:</b><br>
+      • AQI індекс в реальному часі (US та CN стандарти)<br>
+      • PM2.5, PM10 концентрація<br>
+      • Основний забруднювач дня<br>
+      • Погода: температура, вологість, тиск, вітер<br>
+      • Рекомендації для здоров'я<br><br>
+      <b>Як підключити:</b><br>
+      1. Зайти на <a href="https://www.iqair.com/dashboard/api" target="_blank" style="color:var(--accent)">iqair.com/dashboard/api</a><br>
+      2. Зареєструватись → Free план (10k запитів/міс)<br>
+      3. Скопіювати API Key<br>
+      4. У коді змінити: <code style="color:var(--warn)">CFG.IQAIR_KEY = 'ВАШ_КЛЮЧ'</code>
+    </div>`;
+            return;
+        }
+        const p=iq.current?.pollution,w2=iq.current?.weather;
+        const main=p?.mainus||'—';
+        const aqiVal=p?.aqius||0;
+        const [lbl,cls]=aqiLabel(aqiVal,100);
+        el.innerHTML=`
+    <div class="dc"><div class="dct">AQI (US)</div><div class="dcv" style="color:#e879f9">${aqiVal}</div><div class="dcs ${cls}">${lbl}</div></div>
+    <div class="dc"><div class="dct">PM2.5</div><div class="dcv" style="color:${PC.pm25}">${p?.p2?.conc?.toFixed(1)||'—'}<span class="dcu">мкг/м³</span></div></div>
+    <div class="dc"><div class="dct">Головний забруднювач</div><div class="dcv" style="font-size:14px;color:var(--warn)">${main}</div></div>
+    <div class="dc"><div class="dct">Темп / Вологість</div><div class="dcv" style="font-size:14px;color:#60a5fa">${w2?.tp||'—'}°C / ${w2?.hu||'—'}%</div></div>
+    <div class="dc"><div class="dct">Вітер IQAir</div><div class="dcv" style="font-size:14px;color:#a78bfa">${w2?.ws?.toFixed(1)||'—'}<span class="dcu">м/с</span></div></div>
+    <div class="dc"><div class="dct">Місто / Країна</div><div class="dcv" style="font-size:13px">${iq.city||'—'}</div><div class="dcs">${iq.country||'UA'}</div></div>`;
+    }
+
+    // ═══════════════════════════════════════════════
+    // UI EVENTS
+    // ═══════════════════════════════════════════════
+    function swTab(name,el){
+        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.pc').forEach(t=>t.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('tab-'+name).classList.add('active');
+    }
+
+    document.querySelectorAll('#fg .fi').forEach(fi=>{
+        fi.addEventListener('click',()=>{
+            const cb=fi.querySelector('input');cb.checked=!cb.checked;fi.classList.toggle('active',cb.checked);
+            const p=fi.dataset.p;if(p){cb.checked?S.params.add(p):S.params.delete(p);}
+            renderMap();renderAll();
+        });
+    });
+    document.querySelectorAll('#lg .fi').forEach(fi=>{
+        fi.addEventListener('click',()=>{
+            const cb=fi.querySelector('input');cb.checked=!cb.checked;fi.classList.toggle('active',cb.checked);
+            const l=fi.dataset.l;if(l){cb.checked?S.layers.add(l):S.layers.delete(l);}
+            renderMap();
+        });
+    });
+
+    const di=document.getElementById('di');
+    di.value=new Date().toISOString().slice(0,10);
+    di.max=di.value;
+    di.addEventListener('change',()=>renderAll());
+
+    const hs=document.getElementById('hs');
+    hs.addEventListener('input',function(){
+        S.hour=+this.value;
+        document.getElementById('tv').textContent=`${String(S.hour).padStart(2,'0')}:00`;
+        S.stations.forEach(st=>{if(!st.hasReal&&!st.iqSource)st.data=simData(st);});
+        renderMap();renderAll();
+    });
+
+    function showLoad(v){document.getElementById('lov').classList.toggle('show',v);}
+
+    function exportCSV(){
+        const h=['Станція','Місто','Джерело','PM2.5','PM10','NO2','O3','CO','SO2','AQI','Температура','Вологість'];
+        const rows=S.stations.map(s=>{const d=s.data;const src=s.iqSource?'IQAir':s.hasReal?'OpenAQ':'Модель';
+            return[s.name,s.city||'',src,d.pm25?.toFixed(2)||'',d.pm10?.toFixed(2)||'',d.no2?.toFixed(2)||'',d.o3?.toFixed(2)||'',d.co?.toFixed(2)||'',d.so2?.toFixed(2)||'',d.aqi?.toFixed(0)||'',d.temp?.toFixed(1)||'',d.humidity?.toFixed(0)||''];});
+        const csv=[h,...rows].map(r=>r.join(',')).join('\n');
+        const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+        a.download=`volyn-eco-${di.value}-${String(S.hour).padStart(2,'0')}h.csv`;a.click();
+    }
+
+    loadAll();
+</script>
+</body>
+</html>
