@@ -1,125 +1,148 @@
-# EcoWidget — Волинська область
+# LNTUEcoWidget — Волинська область
 
 Дипломний проект: **"Аналіз та візуалізація відкритих екологічних даних для Волинської області"**
 Університет: ЛНТУ (Луцький національний технічний університет)
 
-## Архітектура
+## Структура проекту
 
-Два паралельних файли — одна й та сама функціональність:
+Проект — одна монолітна сторінка. Весь JS/CSS inline в `index.html`.
 
-| Файл | Тип | Призначення |
-|------|-----|-------------|
-| `index.html` | Standalone монолітна сторінка | Головний демо-файл, весь JS inline |
-| `src/` + `dist/` | Web Component `<eco-widget>` | Embedded-версія для вбудовування |
+```
+index.html        ← головний файл (весь код тут)
+server.js         ← Node.js сервер: статика + CORS proxy + /api/config
+package.json      ← npm start
+.env              ← API ключі (не в git)
+.env.example      ← шаблон ключів
+node_modules/     ← залежності сервера
+```
 
-> **Важливо**: Більшість роботи відбувається в `index.html`. Зміни в `src/` потребують збірки (`npm run build`). Щоб подивитись компонентну версію — `demo/index.html`.
+> `src/`, `dist/`, `demo/`, `rollup.config.js` — **видалено**, більше не використовуються.
 
 ## Запуск
 
 ```bash
-npm run serve      # статичний сервер на :3000
-npm run dev        # rollup watch (для src/ версії)
-npm run build      # збірка dist/
+npm start
 ```
 
-Відкрити: http://localhost:3000/index.html
+Відкрити: http://localhost:3000/
+
+## Архітектура index.html
+
+### CFG — конфіг (ключі з .env)
+```js
+const CFG = { IQAIR_KEY:'', ECOWITT_APP_KEY:'', ECOWITT_API_KEY:'', ECOWITT_MAC:'' };
+// При старті завантажується з /api/config:
+fetch('/api/config').then(r=>r.json()).then(d=>{Object.assign(CFG,d);loadAll();}).catch(()=>loadAll());
+```
+
+### STATE (S)
+```js
+const S = {
+  params: new Set(['pm25','pm10','aqi','temp','humidity','wind_speed','pressure']),
+  layers: new Set(['stations','region','ecowitt']),
+  stations: [], radiation: [], sebAir: [], weather: null, iqair: null, ecowitt: null,
+  markers: [], circles: [], radMarkers: [], ewMarker: null,
+  gridData: [], tempLayer: null, windLayer: null,
+  regionLayer: null, volynPoly: null, charts: {}
+};
+```
+
+### Параметри
+```js
+const PC = { pm25:'#ef4444', pm10:'#f59e0b', aqi:'#e879f9', temp:'#60a5fa', humidity:'#34d399', wind_speed:'#a78bfa', pressure:'#fb923c' };
+const PL = { pm25:25, pm10:50, aqi:100, temp:35, humidity:85, wind_speed:15, pressure:1025 };
+const PN = { pm25:'PM2.5', pm10:'PM10', aqi:'AQI', temp:'Температура', humidity:'Вологість', wind_speed:'Вітер', pressure:'Тиск' };
+```
+Всі 7 параметрів активні за замовчуванням. Параметри мають CSS-тултіпи (`data-tip`).
+
+### Шари карти
+- **Станції** — маркери SaveEcoBot + IQAir з попапами
+- **Межі регіону** — полігон Волинської обл. (OSM R71064 + локальний fallback)
+- **EcoWitt** — маркер ЛНТУ метеостанції (50.7358, 25.3247)
+- **Температура** — 20-точкова сітка 4×5 (Open-Meteo, кольорові чіпи)
+- **Вітер** — 20-точкова сітка 4×5 (Open-Meteo, SVG стрілки)
+- **Радіація** — маркери SaveEcoBot (☢️ gamma nSv/h), фільтровані PIP по Волині
+
+### Функція завантаження `loadAll()`
+1. `fetch('/api/config')` → CFG
+2. `fetchSaveEcoBot()` → `S.radiation`, `S.sebAir`
+3. Фільтрація SaveEcoBot по полігону Волині (ray-casting PIP)
+4. Побудова реальних станцій (SaveEcoBot air + IQAir)
+5. `Promise.all` → Open-Meteo для кожної станції (lat/lng)
+6. `fetchGridForecast()` → 20 точок сітки
+7. `fetchEcoWitt()` → ЛНТУ метеостанція
+8. `fetchWeather()` → погода для 3 міст (Луцьк, Ковель, Камінь)
+9. `fetchIQAir()` → AQI Луцька
+10. `fetchOSMRegion()` → OSM межі Волині (async, потім re-filter радіації)
+11. Рендер всіх шарів
 
 ## API-сервіси
 
-### 1. IQAir (AirVisual API v2)
-- **Файл**: `src/api/iqair.js`, inline в `index.html`
-- **Ключ**: `4c7a00ca-ae1a-4b43-8e7b-c3ae0051b725` (в `.env` і в `index.html` CFG)
-- **Ліміт**: 10k запитів/місяць (Free план)
-- **Дані**: AQI (US/CN), PM2.5, PM10, температура, вологість, тиск, вітер
-- **Endpoint**: `GET /v2/nearest_city?lat=&lon=&key=`
-- **Кеш**: localStorage, TTL 15 хвилин (src версія)
-- **⚠️ Баг**: В `index.html` рядок 271 навмисно блокує ключ: `if(CFG.IQAIR_KEY === '4c7a00ca...')return null;` — треба видалити цю перевірку
+### 1. SaveEcoBot
+- **Дані**: PM2.5, PM10, AQI (air), gamma nSv/h (radiation)
+- **Proxy**: `/proxy/saveecobot/radiation` → `https://api.saveecobot.com/radiation`
+- **Maps**: `/proxy/saveecobot-maps/maps_data.js` → `https://www.saveecobot.com/storage/maps_data.js`
+- **Фільтрація**: PIP ray-casting по полігону Волині (OSM R71064 або локальний fallback)
+- **Race condition**: при завантаженні `!S.volynPoly||inRegion()`, після OSM — re-filter
 
-### 2. OpenAQ v3
-- **Файл**: `src/api/openaq.js`, inline в `index.html`
-- **Ключ**: не налаштований (без ключа — 401 помилка)
-- **Реєстрація**: https://explore.openaq.org/register
-- **Дані**: локації станцій в радіусі від координат, останні вимірювання
-- **Endpoints**: `GET /v3/locations`, `GET /v3/locations/{id}/latest`
+### 2. IQAir (AirVisual API v2)
+- **Ключ**: `IQAIR_KEY` з `.env`
+- **Endpoint**: `GET /v2/nearest_city?lat=50.7472&lon=25.3254&key=`
+- **Дані**: AQI (US), PM2.5, температура, вологість, тиск, вітер
+- **Обмеження**: 10k запитів/місяць (Free план)
+- **Станція**: Луцьк-Центр (50.7472, 25.3254), додається якщо немає SaveEcoBot в радіусі 3км
 
 ### 3. Open-Meteo (погода)
-- **Файл**: `src/api/openmeteo.js`
 - **Безкоштовний, без ключа**
-- **Дані**: поточна погода, прогноз, архів з 1940р.
-- **Покриття**: 3 міста (Луцьк, Ковель, Камінь-Каширський) + сітка 4×5 для карти
+- **Дані**: температура, вологість, тиск, вітер, weather_code
+- **Використання**:
+  - На кожній станції (lat/lng станції)
+  - Сітка 4×5 = 20 точок для шарів температури/вітру
+  - 3 міста (Луцьк, Ковель, Камінь-Каширський) для вкладки Погода
+- **Сітка**: lat `[50.30,50.70,51.10,51.50]` × lng `[23.80,24.30,24.80,25.30,25.80]`
 
-### 4. Stadia Maps (тайли карти)
-- **⚠️ Проблема**: URL без API ключа → 401 Invalid Authentication
-- **Поточний URL**: `https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png`
-- **Рішення**: замінити на CartoDB Dark Matter (безкоштовно, без auth):
-  `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png`
-- Attribution: `&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>`
+### 4. EcoWitt API v3
+- **Ключі**: `ECOWITT_APP_KEY`, `ECOWITT_API_KEY`, `ECOWITT_MAC` з `.env`
+- **Станція**: LNTU (MAC: 24:62:AB:16:E3:68), координати 50.7358, 25.3247
+- **Дані**: температура indoor/outdoor, вологість, тиск, вітер, сонячна радіація, UVI, ґрунт
+- **Маркер**: зелений 🌿 на карті, шар "EcoWitt ЛНТУ" в панелі шарів
 
-### 5. Nominatim / OSM (межі Волині)
-- **Запит**: `GET https://nominatim.openstreetmap.org/lookup?osm_ids=R421866&format=geojson&polygon_geojson=1`
-- **R421866** — OSM relation ID Волинської області
-- Є локальний fallback GeoJSON (в обох файлах, різні полігони)
+### 5. CartoDB (тайли карти)
+- **URL**: `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png`
+- **Attribution**: OpenStreetMap + CARTO
+- **Безкоштовно, без ключа** (замінено Stadia Maps, яка вимагала auth)
 
-### 6. Saveecobot (радіація) — **ПОТРІБНО ДОДАТИ**
-- Дані радіаційного фону в Волинській області
-- API: https://api.saveecobot.com/radiation
-- Безкоштовний публічний API
+### 6. OSM Nominatim (межі Волині)
+- **Запит**: `GET https://nominatim.openstreetmap.org/lookup?osm_ids=R71064&format=geojson&polygon_geojson=1`
+- **R71064** — OSM relation Волинської області (~10910 вершин)
+- Локальний fallback GeoJSON (~36 точок) — використовується одразу, OSM завантажується async
 
-### 7. EcoWitt (метеостанція ЛНТУ) — **ПОТРІБНО ДОДАТИ**
-- Сайт: https://www.ecowitt.net/home/index?id=65950
-- Датчики: температура indoor/outdoor, вологість, тиск, вітер, сонячна радіація, UVI, ґрунт
-- API: EcoWitt Application API (потребує реєстрації та ключа)
-- Станція: **LNTU** (Луцький НТУ)
+## server.js
 
-## Станції (STATIONS)
+- Статичний файловий сервер
+- CORS proxy: `/proxy/<alias>/<path>` → реальний URL
+  - `saveecobot` → `https://api.saveecobot.com`
+  - `saveecobot-maps` → `https://www.saveecobot.com/storage`
+- `/api/config` → читає `.env`, повертає JSON з ключами
+- Парсинг `.env` вручну (без dotenv, тільки вбудований `fs`)
 
-12 вручну визначених точок без реальних OpenAQ ID:
-- Луцьк (4 точки), Ковель, Нowowолинськ, Володимир, Рожище, Горохів, Камінь-Каширський, Ківерці, Локачі
-- `isLutskCenter`, `isKovelCenter`, `isKaminCenter` — прапори для IQAir nearest_city
-
-## Симуляція даних
-
-Коли реальних даних немає — `simData()`:
-- `index.html`: `Math.random()` — дійсно рандомні (змінюються при кожному виклику)
-- `src/store/state.js`: Mulberry32 PRNG з seed = f(lat, lng, hour) — детерміновані
-
-## Відомі проблеми (TODO)
-
-1. **Мапа 401** — замінити Stadia Maps → CartoDB Dark Matter
-2. **IQAir не підключається** — видалити хибну перевірку ключа в `index.html:271`
-3. **Повітря — рандомайз** — після фікса IQAir + додати OpenAQ ключ
-4. **Межі Волині** — перевірити R421866 в OSM; локальні полігони відрізняються
-5. **Saveecobot** — додати API-модуль і шар на карті (радіація)
-6. **EcoWitt** — додати API-модуль і вкладку в BottomPanel
-
-## Структура src/
+## .env
 
 ```
-src/
-  index.js              # Web Component реєстрація
-  components/
-    Map.js              # Leaflet карта, loadAll(), renderMap()
-    Sidebar.js          # Ліва панель (параметри, шари, слайдер)
-    BottomPanel.js      # Нижня панель (вкладки: Повітря, Станції, Погода, IQAir)
-    Charts.js           # Chart.js обгортки
-  api/
-    iqair.js            # IQAir API + localStorage кеш
-    openaq.js           # OpenAQ v3 API
-    openmeteo.js        # Open-Meteo API (погода + сітка)
-  data/
-    stations.js         # Статичний список 12 станцій
-    volyn-geojson.js    # Локальний fallback-полігон Волині (~36 точок)
-  store/
-    state.js            # Реактивний стан + simData() + кольори/ліміти
-  styles/
-    widget.css          # Стилі Shadow DOM
-```
-
-## Ключі / ENV
-
-```
-IQAIR_KEY=4c7a00ca-ae1a-4b43-8e7b-c3ae0051b725
+IQAIR_KEY=...
+ECOWITT_APP_KEY=...
+ECOWITT_API_KEY=...
+ECOWITT_MAC=24:62:AB:16:E3:68
 NODE_ENV=development
 ```
 
-OpenAQ ключ поки не налаштований (потрібна реєстрація).
+## Відомі деталі
+
+- **Карта**: `map.setView([51.0, 25.0], 8)` — фіксований центр Волині
+- **Дублікати станцій**: `usedNames` Set — другій станції додається `#id` суфікс
+- **Симуляція**: прибрана повністю, тільки реальні дані
+- **NO₂, O₃, CO, SO₂**: прибрані (немає реальних джерел для Волині)
+- **Теплова зона**: прибрана як окремий шар
+- **Вкладка "Повітря"**: прибрана з BottomPanel
+- **Кнопка оновити**: в хедері (↻)
+- **Назва**: LNTUEcoWidget

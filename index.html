@@ -439,28 +439,21 @@
             border-radius: 2px
         }
 
-        .fi[data-tip] {
-            position: relative
-        }
-
-        .fi[data-tip]:hover::after {
-            content: attr(data-tip);
-            position: absolute;
-            left: 100%;
-            top: 50%;
-            transform: translateY(-50%);
+        #tip-box {
+            position: fixed;
             background: #1e2533;
             border: 1px solid #2a3040;
             color: #e2e8f0;
-            font-size: 10px;
-            padding: 5px 8px;
-            border-radius: 6px;
+            font-size: 11px;
+            padding: 7px 10px;
+            border-radius: 8px;
             white-space: normal;
-            width: 200px;
-            z-index: 9999;
-            margin-left: 6px;
-            line-height: 1.4;
-            pointer-events: none
+            width: 220px;
+            z-index: 99999;
+            line-height: 1.45;
+            pointer-events: none;
+            display: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,.6)
         }
 
         .temp-chip {
@@ -468,10 +461,11 @@
             color: #fff;
             font-size: 10px;
             font-weight: 700;
-            padding: 2px 5px;
+            padding: 2px 4px;
             border-radius: 4px;
             white-space: nowrap;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, .5)
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .5);
+            letter-spacing: -0.3px
         }
 
         .wind-arrow {
@@ -876,7 +870,7 @@
         // Region border — fallback polygon, буде замінено точним контуром з OSM
         const REGION_STYLE = { color: '#4f8ef7', weight: 2, fillColor: '#4f8ef7', fillOpacity: .06, dashArray: '6,4' };
         S.regionLayer = L.geoJSON(VOLYN, { style: REGION_STYLE }).addTo(map);
-        map.setView([51.0, 25.0], 8);
+        map.setView([51.13, 25.0], 8);
 
         // Асинхронно підвантажуємо точний контур Волинської обл. з OSM (R71064)
         fetch('https://nominatim.openstreetmap.org/lookup?osm_ids=R71064&format=geojson&polygon_geojson=1')
@@ -1056,13 +1050,22 @@
             }
         }
 
-        // ─── Grid сітка температури/вітру (4×5 = 20 точок) ────────────────────────
+        // ─── Grid сітка температури/вітру (10×11 = 110 точок, фільтр по межах Волині) ──
         const GRID_PTS = [];
-        for (const lat of [50.30, 50.70, 51.10, 51.50]) for (const lng of [23.80, 24.30, 24.80, 25.30, 25.80]) GRID_PTS.push({ lat, lng });
+        for (const lat of [50.05, 50.25, 50.45, 50.65, 50.85, 51.05, 51.25, 51.45, 51.65, 51.85])
+            for (const lng of [23.30, 23.55, 23.80, 24.05, 24.30, 24.55, 24.80, 25.05, 25.30, 25.55, 25.80])
+                GRID_PTS.push({ lat, lng });
 
         function windArrowHtml(spd, dir) {
-            const col = spd < 3 ? '#34d399' : spd < 7 ? '#fbbf24' : spd < 12 ? '#f97316' : '#ef4444';
-            return `<div class="wind-arrow"><svg width="20" height="20" viewBox="0 0 20 20" style="transform:rotate(${dir}deg)"><polygon points="10,2 14,16 10,13 6,16" fill="${col}"/></svg><span>${spd.toFixed(1)}</span></div>`;
+            // Синя гама: слабкий вітер = блакитний, сильний = темно-синій
+            const col = spd < 2 ? '#bfdbfe' : spd < 4 ? '#60a5fa' : spd < 7 ? '#3b82f6' : spd < 10 ? '#1d4ed8' : '#7c3aed';
+            return `<div class="wind-arrow">
+                <svg width="28" height="28" viewBox="0 0 28 28" style="transform:rotate(${dir || 0}deg)">
+                    <polygon points="14,3 17,20 14,17 11,20" fill="${col}" opacity="0.95" style="filter:drop-shadow(0 1px 2px rgba(0,0,0,.7))"/>
+                    <circle cx="14" cy="14" r="2.2" fill="${col}" opacity="0.55"/>
+                </svg>
+                <span style="color:${col};font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.9)">${spd.toFixed(1)}</span>
+            </div>`;
         }
 
         function tempToColor(t) {
@@ -1072,13 +1075,21 @@
         }
 
         async function fetchGridForecast() {
-            return Promise.all(GRID_PTS.map(async pt => {
-                try {
-                    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pt.lat}&longitude=${pt.lng}&current=temperature_2m,wind_speed_10m,wind_direction_10m&timezone=Europe%2FKyiv`);
-                    const d = await r.json(); const c = d.current || {};
-                    return { ...pt, temp: c.temperature_2m, windSpeed: c.wind_speed_10m, windDir: c.wind_direction_10m };
-                } catch { return { ...pt, temp: null, windSpeed: null, windDir: null } }
-            }));
+            // Open-Meteo підтримує масив координат в одному запиті (до 1000 точок)
+            try {
+                const lats = GRID_PTS.map(p => p.lat).join(',');
+                const lngs = GRID_PTS.map(p => p.lng).join(',');
+                const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m,wind_speed_10m,wind_direction_10m&timezone=Europe%2FKyiv`);
+                const data = await r.json();
+                // відповідь — масив об'єктів якщо багато точок, або один об'єкт якщо одна
+                const arr = Array.isArray(data) ? data : [data];
+                return GRID_PTS.map((pt, i) => {
+                    const c = arr[i]?.current || {};
+                    return { ...pt, temp: c.temperature_2m ?? null, windSpeed: c.wind_speed_10m ?? null, windDir: c.wind_direction_10m ?? null };
+                });
+            } catch {
+                return GRID_PTS.map(pt => ({ ...pt, temp: null, windSpeed: null, windDir: null }));
+            }
         }
 
         function buildTempLayer() {
@@ -1086,9 +1097,9 @@
             if (!S.layers.has('temp-grid') || !S.gridData.length) return;
             const layer = L.layerGroup();
             for (const pt of S.gridData) {
-                if (pt.temp == null) continue;
+                if (pt.temp == null || !inRegion(pt.lat, pt.lng)) continue;
                 const col = tempToColor(pt.temp);
-                const icon = L.divIcon({ className: '', html: `<div class="temp-chip" style="background:${col}">${pt.temp.toFixed(1)}°</div>`, iconSize: [46, 20], iconAnchor: [23, 10] });
+                const icon = L.divIcon({ className: '', html: `<div class="temp-chip" style="background:${col}">${pt.temp.toFixed(1)}°</div>`, iconSize: [38, 18], iconAnchor: [19, 9] });
                 L.marker([pt.lat, pt.lng], { icon, interactive: false }).addTo(layer);
             }
             S.tempLayer = layer;
@@ -1100,9 +1111,9 @@
             if (!S.layers.has('wind-grid') || !S.gridData.length) return;
             const layer = L.layerGroup();
             for (const pt of S.gridData) {
-                if (pt.windSpeed == null) continue;
-                const icon = L.divIcon({ className: '', html: windArrowHtml(pt.windSpeed, pt.windDir), iconSize: [32, 32], iconAnchor: [16, 16] });
-                L.marker([pt.lat, pt.lng], { icon }).bindTooltip(`${pt.windSpeed.toFixed(1)} м/с · ${pt.windDir}°`, { direction: 'top', offset: [0, -16] }).addTo(layer);
+                if (pt.windSpeed == null || !inRegion(pt.lat, pt.lng)) continue;
+                const icon = L.divIcon({ className: '', html: windArrowHtml(pt.windSpeed, pt.windDir), iconSize: [36, 44], iconAnchor: [18, 22] });
+                L.marker([pt.lat, pt.lng], { icon }).bindTooltip(`${pt.windSpeed.toFixed(1)} м/с · ${pt.windDir}°`, { direction: 'top', offset: [0, -22] }).addTo(layer);
             }
             S.windLayer = layer;
             S.windLayer.addTo(map);
@@ -1357,8 +1368,10 @@
 
         document.querySelectorAll('#fg .fi').forEach(fi => {
             fi.addEventListener('click', () => {
-                const cb = fi.querySelector('input'); cb.checked = !cb.checked; fi.classList.toggle('active', cb.checked);
-                const p = fi.dataset.p; if (p) { cb.checked ? S.params.add(p) : S.params.delete(p); }
+                const cb = fi.querySelector('input');
+                if (cb.checked) return; // параметр завжди активний — вимикання заборонено
+                cb.checked = true; fi.classList.add('active');
+                const p = fi.dataset.p; if (p) S.params.add(p);
                 renderMap(); renderAll();
             });
         });
@@ -1385,6 +1398,21 @@
             const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
             a.download = `lntu-eco-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
         }
+
+        // ─── JS Tooltip (обходить overflow:hidden сайдбару) ───────────────────────
+        const tipBox = document.createElement('div');
+        tipBox.id = 'tip-box';
+        document.body.appendChild(tipBox);
+        function positionTip(e) {
+            const x = e.clientX + 14, y = e.clientY - 6;
+            tipBox.style.left = (x + 220 > window.innerWidth ? e.clientX - 234 : x) + 'px';
+            tipBox.style.top = (y + tipBox.offsetHeight > window.innerHeight ? e.clientY - tipBox.offsetHeight - 4 : y) + 'px';
+        }
+        document.querySelectorAll('[data-tip]').forEach(el => {
+            el.addEventListener('mouseenter', e => { tipBox.textContent = el.dataset.tip; tipBox.style.display = 'block'; positionTip(e); });
+            el.addEventListener('mousemove', positionTip);
+            el.addEventListener('mouseleave', () => { tipBox.style.display = 'none'; });
+        });
 
         // Завантажуємо конфіг з сервера, потім дані
         fetch('/api/config').then(r => r.json()).then(d => { Object.assign(CFG, d); loadAll(); }).catch(() => loadAll());
