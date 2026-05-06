@@ -8,6 +8,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
+    "start": "node server.js",
     "serve": "npx serve . -p 3000"
   },
   "devDependencies": {

@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "serve",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", ".", "-p", "3000"],
+      "name": "start",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
       "port": 3000
     },
     {
