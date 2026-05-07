@@ -964,28 +964,94 @@
         }
 
         /* Phosphor icons glow */
-        .ph-duotone { vertical-align: -0.15em; line-height: 1 }
-        .ico-green  { color: #34d399; filter: drop-shadow(0 0 5px #34d399aa) }
-        .ico-blue   { color: #60a5fa; filter: drop-shadow(0 0 5px #60a5faaa) }
-        .ico-purple { color: #a78bfa; filter: drop-shadow(0 0 5px #a78bfaaa) }
-        .ico-warn   { color: #fbbf24; filter: drop-shadow(0 0 5px #fbbf24aa) }
-        .ico-accent { color: #4f8ef7; filter: drop-shadow(0 0 5px #4f8ef7aa) }
-        .ico-rad    { color: #f87171; filter: drop-shadow(0 0 6px #f87171cc) }
-        .ico-muted  { color: var(--text2) }
+        .ph-duotone {
+            vertical-align: -0.15em;
+            line-height: 1
+        }
+
+        .ico-green {
+            color: #34d399;
+            filter: drop-shadow(0 0 5px #34d399aa)
+        }
+
+        .ico-blue {
+            color: #60a5fa;
+            filter: drop-shadow(0 0 5px #60a5faaa)
+        }
+
+        .ico-purple {
+            color: #a78bfa;
+            filter: drop-shadow(0 0 5px #a78bfaaa)
+        }
+
+        .ico-warn {
+            color: #fbbf24;
+            filter: drop-shadow(0 0 5px #fbbf24aa)
+        }
+
+        .ico-accent {
+            color: #4f8ef7;
+            filter: drop-shadow(0 0 5px #4f8ef7aa)
+        }
+
+        .ico-rad {
+            color: #f87171;
+            filter: drop-shadow(0 0 6px #f87171cc)
+        }
+
+        .ico-muted {
+            color: var(--text2)
+        }
 
         /* Panel toggle buttons */
         .panel-toggle-btn {
-            background: var(--surface); border: 1px solid var(--border);
-            color: var(--text2); cursor: pointer; border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            transition: color .2s, border-color .2s; flex-shrink: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color .2s, border-color .2s;
+            flex-shrink: 0;
         }
-        .panel-toggle-btn:hover { color: var(--accent); border-color: var(--accent) }
-        .sidebar-toggle-btn { width: 24px; height: 100%; border-radius: 0; border-top: none; border-bottom: none; border-left: none; writing-mode: vertical-rl; font-size: 14px }
-        .bottom-toggle-btn { width: 100%; height: 20px; border-radius: 4px 4px 0 0; border-bottom: none; font-size: 12px }
-        .sidebar.hidden { display: none }
-        .bottom-panel-hidden #bottom-panel { display: none }
-        .bottom-panel-hidden #bottom-toggle i { transform: rotate(180deg) }
+
+        .panel-toggle-btn:hover {
+            color: var(--accent);
+            border-color: var(--accent)
+        }
+
+        .sidebar-toggle-btn {
+            width: 24px;
+            height: 100%;
+            border-radius: 0;
+            border-top: none;
+            border-bottom: none;
+            border-left: none;
+            writing-mode: vertical-rl;
+            font-size: 14px
+        }
+
+        .bottom-toggle-btn {
+            width: 100%;
+            height: 20px;
+            border-radius: 4px 4px 0 0;
+            border-bottom: none;
+            font-size: 12px
+        }
+
+        .sidebar.hidden {
+            display: none
+        }
+
+        .bottom-panel-hidden #bottom-panel {
+            display: none
+        }
+
+        .bottom-panel-hidden #bottom-toggle i {
+            transform: rotate(180deg)
+        }
 
         .arch-load-btn {
             background: var(--warn);
@@ -1022,13 +1088,15 @@
         <div class="lupd" id="lupd"></div>
         <button id="btn-refresh" onclick="loadAll()" title="Оновити дані"
             style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:15px;line-height:1;margin-left:8px"
-            onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'"><i class="ph-duotone ph-arrows-clockwise ico-muted"></i></button>
+            onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'"><i
+                class="ph-duotone ph-arrows-clockwise ico-muted"></i></button>
 
         <button onclick="openAnalytics()"
             style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px 11px;cursor:pointer;font-size:12px;white-space:nowrap;transition:.15s"
             onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
             onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'"
-            title="Аналітика та графіки по станціях"><i class="ph-duotone ph-chart-bar ico-accent"></i> Аналітика</button>
+            title="Аналітика та графіки по станціях"><i class="ph-duotone ph-chart-bar ico-accent"></i>
+            Аналітика</button>
 
         <button id="btn-archive" class="arch-btn" onclick="toggleArchive()" title="Перегляд архівних даних">
             <i class="ph-duotone ph-calendar ico-warn"></i> Архів
@@ -1057,8 +1125,10 @@
                 <input type="date" id="an-to" class="an-date-in">
                 <button class="an-pbtn" onclick="applyAnCustom()">Застосувати</button>
             </div>
-            <button class="an-export-btn" onclick="exportAnalyticsPdf()"><i class="ph-duotone ph-download-simple ico-muted"></i> PDF</button>
-            <button class="an-close-btn" onclick="closeAnalytics()"><i class="ph-duotone ph-x ico-muted"></i> Закрити</button>
+            <button class="an-export-btn" onclick="exportAnalyticsPdf()"><i
+                    class="ph-duotone ph-download-simple ico-muted"></i> PDF</button>
+            <button class="an-close-btn" onclick="closeAnalytics()"><i class="ph-duotone ph-x ico-muted"></i>
+                Закрити</button>
         </div>
         <div class="an-body">
             <div class="an-body-inner" id="an-body">
@@ -1068,7 +1138,8 @@
     </div>
 
     <div class="main">
-        <button id="sidebar-toggle" class="panel-toggle-btn sidebar-toggle-btn" onclick="toggleSidebar()" title="Приховати/показати панель">
+        <button id="sidebar-toggle" class="panel-toggle-btn sidebar-toggle-btn" onclick="toggleSidebar()"
+            title="Приховати/показати панель">
             <i class="ph-duotone ph-sidebar ico-muted"></i>
         </button>
         <div class="sidebar" id="sidebar">
@@ -1121,28 +1192,38 @@
             <div class="ss">
                 <div class="st">Шари</div>
                 <div class="fg" id="lg">
-                    <label class="fi active" data-l="stations" data-tip="Моніторингові станції SaveEcoBot та IQAir з показниками PM2.5, PM10 та AQI"><input type="checkbox" checked>
-                        <div class="fd" style="background:#4f8ef7"></div><span class="fl">Станції</span><span
-                            class="fb">SaveEcoBot / IQAir</span>
+                    <label class="fi active" data-l="stations"
+                        data-tip="Моніторингові станції SaveEcoBot та IQAir з показниками PM2.5, PM10 та AQI"><input
+                            type="checkbox" checked>
+                        <span class="fl"><i class="ph-duotone ph-map-pin ico-accent"></i> Станції</span><span class="fb">SaveEcoBot / IQAir</span>
                     </label>
-                    <label class="fi active" data-l="region" data-tip="Межі Волинської області (OSM R71064). Використовується для фільтрації датчиків"><input type="checkbox" checked>
-                        <div class="fd" style="background:#34d399"></div><span class="fl">Межі Волині</span><span
-                            class="fb">OSM</span>
+                    <label class="fi active" data-l="region"
+                        data-tip="Межі Волинської області (OSM R71064). Використовується для фільтрації датчиків"><input
+                            type="checkbox" checked>
+                        <span class="fl"><i class="ph-duotone ph-polygon ico-blue"></i> Межі Волині</span><span class="fb">OSM</span>
                     </label>
-                    <label class="fi active" data-l="ecowitt" data-tip="Метеостанція ЛНТУ (EcoWitt). Показує температуру, вологість, тиск, вітер, сонячну радіацію та вологість ґрунту"><input type="checkbox" checked>
-                        <div class="fd" style="background:#34d399"></div><span class="fl"><i class="ph-duotone ph-plant ico-green"></i> EcoWitt ЛНТУ</span><span
+                    <label class="fi active" data-l="ecowitt"
+                        data-tip="Метеостанція ЛНТУ (EcoWitt). Показує температуру, вологість, тиск, вітер, сонячну радіацію та вологість ґрунту"><input
+                            type="checkbox" checked>
+                        <span class="fl"><i class="ph-duotone ph-plant ico-green"></i> EcoWitt ЛНТУ</span><span
                             class="fb">EcoWitt</span>
                     </label>
-                    <label class="fi" data-l="radiation" data-tip="Датчики гамма-радіації SaveEcoBot (мкЗв/год). Відображаються тільки в межах Волинської обл."><input type="checkbox">
-                        <div class="fd" style="background:#34d399"></div><span class="fl"><i class="ph-duotone ph-radioactive ico-rad"></i> Радіація</span><span
+                    <label class="fi" data-l="radiation"
+                        data-tip="Датчики гамма-радіації SaveEcoBot (мкЗв/год). Відображаються тільки в межах Волинської обл."><input
+                            type="checkbox">
+                        <span class="fl"><i class="ph-duotone ph-radioactive ico-rad"></i> Радіація</span><span
                             class="fb">SaveEcoBot</span>
                     </label>
-                    <label class="fi" data-l="temp-grid" data-tip="Сітка температури 4×5 точок по всій Волині. Дані Open-Meteo, оновлюються щогодини"><input type="checkbox">
-                        <div class="fd" style="background:#60a5fa"></div><span class="fl"><i class="ph-duotone ph-thermometer ico-blue"></i> Температура
+                    <label class="fi" data-l="temp-grid"
+                        data-tip="Сітка температури 4×5 точок по всій Волині. Дані Open-Meteo, оновлюються щогодини"><input
+                            type="checkbox">
+                        <span class="fl"><i class="ph-duotone ph-thermometer ico-blue"></i> Температура
                             (сітка)</span><span class="fb">Open-Meteo</span>
                     </label>
-                    <label class="fi" data-l="wind-grid" data-tip="Сітка вітру 4×5 точок по всій Волині. Стрілки показують напрям та швидкість (м/с)"><input type="checkbox">
-                        <div class="fd" style="background:#a78bfa"></div><span class="fl"><i class="ph-duotone ph-wind ico-purple"></i> Вітер (сітка)</span><span
+                    <label class="fi" data-l="wind-grid"
+                        data-tip="Сітка вітру 4×5 точок по всій Волині. Стрілки показують напрям та швидкість (м/с)"><input
+                            type="checkbox">
+                        <span class="fl"><i class="ph-duotone ph-wind ico-purple"></i> Вітер (сітка)</span><span
                             class="fb">Open-Meteo</span>
                     </label>
                 </div>
@@ -1168,21 +1249,27 @@
             </div>
 
             <div class="ss">
-                <button class="btn bs" onclick="exportCSV()"><i class="ph-duotone ph-download ico-accent"></i> Експорт CSV</button>
+                <button class="btn bs" onclick="exportCSV()"><i class="ph-duotone ph-download ico-accent"></i> Експорт
+                    CSV</button>
             </div>
         </div>
 
         <div class="mw">
             <div id="map"></div>
-            <button id="bottom-toggle" class="panel-toggle-btn bottom-toggle-btn" onclick="toggleBottomPanel()" title="Приховати/показати нижню панель">
+            <button id="bottom-toggle" class="panel-toggle-btn bottom-toggle-btn" onclick="toggleBottomPanel()"
+                title="Приховати/показати нижню панель">
                 <i class="ph-duotone ph-caret-down ico-muted" id="bottom-toggle-icon"></i>
             </button>
             <div class="bp2" id="bottom-panel">
                 <div class="pt">
-                    <div class="tab active" onclick="swTab('st',this)"><i class="ph-duotone ph-map-pin ico-accent"></i> Станції</div>
-                    <div class="tab" onclick="swTab('wx',this)"><i class="ph-duotone ph-cloud-sun ico-blue"></i> Погода</div>
-                    <div class="tab" onclick="swTab('iq',this)"><i class="ph-duotone ph-circle-dashed ico-purple"></i> IQAir</div>
-                    <div class="tab" onclick="swTab('ew',this)"><i class="ph-duotone ph-plant ico-green"></i> EcoWitt</div>
+                    <div class="tab active" onclick="swTab('st',this)"><i class="ph-duotone ph-map-pin ico-accent"></i>
+                        Станції</div>
+                    <div class="tab" onclick="swTab('wx',this)"><i class="ph-duotone ph-cloud-sun ico-blue"></i> Погода
+                    </div>
+                    <div class="tab" onclick="swTab('iq',this)"><i class="ph-duotone ph-circle-dashed ico-purple"></i>
+                        IQAir</div>
+                    <div class="tab" onclick="swTab('ew',this)"><i class="ph-duotone ph-plant ico-green"></i> EcoWitt
+                    </div>
                 </div>
                 <div class="pc active" id="tab-st"></div>
                 <div class="pc" id="tab-wx"></div>
@@ -1604,7 +1691,7 @@
         }
 
         // EcoWitt — точка ЛНТУ на карті
-        const EW_LAT = 50.7358, EW_LNG = 25.3247;
+        const EW_LAT = 50.7260430, EW_LNG = 25.2974770;
         function renderEWMarker() {
             if (S.ewMarker) { map.removeLayer(S.ewMarker); S.ewMarker = null; }
             if (!S.layers.has('ecowitt') || !S.ecowitt) return;
@@ -1622,9 +1709,9 @@
           <div class="ppr"><span><i class="ph-duotone ph-house ico-green"></i> Indoor</span><span class="ppv">${f(ew.tempIn)}°C / ${f(ew.humIn, 0)}%</span></div>
           <div class="ppr"><span><i class="ph-duotone ph-wind ico-purple"></i> Вітер</span><span class="ppv">${f(ew.windSpeed)} м/с (пор. ${f(ew.windGust)})</span></div>
           <div class="ppr"><span><i class="ph-duotone ph-gauge ico-blue"></i> Тиск</span><span class="ppv">${f(ew.pressureRel, 0)} гПа</span></div>
-          <div class="ppr"><span>☀️ Сонце / УФ</span><span class="ppv">${f(ew.solar, 0)} Вт/м² · UVI ${f(ew.uvi, 0)}</span></div>
+          <div class="ppr"><span><i class="ph-duotone ph-sun ico-warn"></i> Сонце / УФ</span><span class="ppv">${f(ew.solar, 0)} Вт/м² · UVI ${f(ew.uvi, 0)}</span></div>
           <div class="ppr"><span><i class="ph-duotone ph-cloud-rain ico-blue"></i> Опади</span><span class="ppv">${f(ew.rainDaily)} мм/добу</span></div>
-          ${ew.soilMoisture != null ? `<div class="ppr"><span>🌱 Ґрунт</span><span class="ppv">${f(ew.soilMoisture, 0)}% вологість</span></div>` : ''}
+          ${ew.soilMoisture != null ? `<div class="ppr"><span><i class="ph-duotone ph-plant ico-green"></i> Ґрунт</span><span class="ppv">${f(ew.soilMoisture, 0)}% вологість</span></div>` : ''}
           <div style="font-size:10px;color:var(--text2);margin-top:5px">Джерело: EcoWitt API</div>
         </div>`;
             S.ewMarker = L.marker([EW_LAT, EW_LNG], { icon }).addTo(map).bindPopup(popup, { maxWidth: 260 });
@@ -1709,9 +1796,9 @@
       <div class="dc"><div class="dct"><i class="ph-duotone ph-house ico-green"></i> Indoor</div><div class="dcv" style="color:#34d399">${f(ew.tempIn)}<span class="dcu">°C</span></div><div class="dcs">${f(ew.humIn, 0)}% вологість</div></div>
       <div class="dc"><div class="dct"><i class="ph-duotone ph-wind ico-purple"></i> Вітер</div><div class="dcv" style="color:#a78bfa">${f(ew.windSpeed)}<span class="dcu">м/с</span></div><div class="dcs">Пориви: ${f(ew.windGust)} м/с</div></div>
       <div class="dc"><div class="dct"><i class="ph-duotone ph-gauge ico-blue"></i> Тиск</div><div class="dcv" style="color:#fb923c">${f(ew.pressureRel, 0)}<span class="dcu">гПа</span></div></div>
-      <div class="dc"><div class="dct">☀️ Сонце / УФ</div><div class="dcv" style="color:#fbbf24">${f(ew.solar, 0)}<span class="dcu">Вт/м²</span></div><div class="dcs">UVI: ${f(ew.uvi, 0)}</div></div>
+      <div class="dc"><div class="dct"><i class="ph-duotone ph-sun ico-warn"></i> Сонце / УФ</div><div class="dcv" style="color:#fbbf24">${f(ew.solar, 0)}<span class="dcu">Вт/м²</span></div><div class="dcs">UVI: ${f(ew.uvi, 0)}</div></div>
       <div class="dc"><div class="dct"><i class="ph-duotone ph-cloud-rain ico-blue"></i> Опади</div><div class="dcv" style="color:#60a5fa">${f(ew.rainDaily)}<span class="dcu">мм/добу</span></div><div class="dcs">${f(ew.rainRate)} мм/год</div></div>
-      ${ew.soilTemp != null ? `<div class="dc"><div class="dct">🌱 Ґрунт CH1</div><div class="dcv" style="color:#84cc16">${f(ew.soilTemp)}<span class="dcu">°C</span></div><div class="dcs">Волога: ${f(ew.soilMoisture, 0)}%</div></div>` : ''}
+      ${ew.soilTemp != null ? `<div class="dc"><div class="dct"><i class="ph-duotone ph-plant ico-green"></i> Ґрунт CH1</div><div class="dcv" style="color:#84cc16">${f(ew.soilTemp)}<span class="dcu">°C</span></div><div class="dcs">Волога: ${f(ew.soilMoisture, 0)}%</div></div>` : ''}
       ${ew.tempCh7 != null ? `<div class="dc"><div class="dct"><i class="ph-duotone ph-thermometer ico-blue"></i> T&H CH7</div><div class="dcv" style="color:#34d399">${f(ew.tempCh7)}<span class="dcu">°C</span></div><div class="dcs">${f(ew.humCh7, 0)}%</div></div>` : ''}
       ${ew.leafWetness != null ? `<div class="dc"><div class="dct"><i class="ph-duotone ph-leaf ico-green"></i> Листок CH1</div><div class="dcv" style="color:#34d399">${f(ew.leafWetness, 0)}<span class="dcu">%</span></div></div>` : ''}`;
         }
@@ -1768,11 +1855,22 @@
             const el = document.getElementById('tab-wx');
             const sts = S.stations.filter(s => s.wx?.current);
             if (!sts.length) { el.innerHTML = '<div class="nd">Метеодані недоступні</div>'; return; }
-            const wc = { 0: '☀️', 1: '🌤', 2: '⛅', 3: '☁️', 45: '🌫', 51: '🌦', 61: '🌧', 71: '🌨', 80: '🌦', 95: '⛈' };
-            const src = `<div style="font-size:10px;color:var(--text2);padding:2px 0 8px;width:100%">📡 <b>Open-Meteo</b> — поточна погода для кожної станції</div>`;
+            const wc = {
+                0: '<i class="ph-duotone ph-sun ico-warn"></i>',
+                1: '<i class="ph-duotone ph-cloud-sun ico-blue"></i>',
+                2: '<i class="ph-duotone ph-cloud ico-muted"></i>',
+                3: '<i class="ph-duotone ph-cloud ico-muted"></i>',
+                45: '<i class="ph-duotone ph-cloud-fog ico-muted"></i>',
+                51: '<i class="ph-duotone ph-cloud-rain ico-blue"></i>',
+                61: '<i class="ph-duotone ph-cloud-rain ico-blue"></i>',
+                71: '<i class="ph-duotone ph-snowflake ico-blue"></i>',
+                80: '<i class="ph-duotone ph-cloud-rain ico-blue"></i>',
+                95: '<i class="ph-duotone ph-cloud-lightning ico-warn"></i>'
+            };
+            const src = `<div style="font-size:10px;color:var(--text2);padding:2px 0 8px;width:100%"><i class="ph-duotone ph-broadcast ico-accent"></i> <b>Open-Meteo</b> — поточна погода для кожної станції</div>`;
             const stCards = sts.map(st => {
                 const c = st.wx.current;
-                const ico = wc[c.weather_code] || '🌡';
+                const ico = wc[c.weather_code] || '<i class="ph-duotone ph-thermometer ico-blue"></i>';
                 return `<div class="dc" style="min-width:140px">
               <div class="dct">${ico} ${st.name}</div>
               <div class="dcv" style="color:#60a5fa;font-size:18px">${c.temperature_2m?.toFixed(1)}<span class="dcu">°C</span></div>
@@ -2464,15 +2562,19 @@
 
         // Restore panel states from localStorage
         (function restorePanels() {
+            let needResize = false;
             if (localStorage.getItem('sidebar_hidden')) {
                 const sb = document.getElementById('sidebar');
                 const btn = document.getElementById('sidebar-toggle');
-                if (sb) sb.classList.add('hidden');
+                if (sb) { sb.classList.add('hidden'); needResize = true; }
                 if (btn) btn.querySelector('i').className = 'ph-duotone ph-sidebar-simple ico-muted';
             }
             if (localStorage.getItem('bottompanel_hidden')) {
                 const mw = document.querySelector('.mw');
-                if (mw) mw.classList.add('bottom-panel-hidden');
+                if (mw) { mw.classList.add('bottom-panel-hidden'); needResize = true; }
+            }
+            if (needResize) {
+                requestAnimationFrame(() => requestAnimationFrame(() => map.invalidateSize()));
             }
         })();
 
