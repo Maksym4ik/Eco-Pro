@@ -4,10 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoWidget — Волинська область</title>
+    <title>EcoScanHub — Волинська область</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
     <style>
         :root {
             --bg: #0d1117;
@@ -962,6 +963,30 @@
             border-color: var(--accent)
         }
 
+        /* Phosphor icons glow */
+        .ph-duotone { vertical-align: -0.15em; line-height: 1 }
+        .ico-green  { color: #34d399; filter: drop-shadow(0 0 5px #34d399aa) }
+        .ico-blue   { color: #60a5fa; filter: drop-shadow(0 0 5px #60a5faaa) }
+        .ico-purple { color: #a78bfa; filter: drop-shadow(0 0 5px #a78bfaaa) }
+        .ico-warn   { color: #fbbf24; filter: drop-shadow(0 0 5px #fbbf24aa) }
+        .ico-accent { color: #4f8ef7; filter: drop-shadow(0 0 5px #4f8ef7aa) }
+        .ico-rad    { color: #f87171; filter: drop-shadow(0 0 6px #f87171cc) }
+        .ico-muted  { color: var(--text2) }
+
+        /* Panel toggle buttons */
+        .panel-toggle-btn {
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text2); cursor: pointer; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            transition: color .2s, border-color .2s; flex-shrink: 0;
+        }
+        .panel-toggle-btn:hover { color: var(--accent); border-color: var(--accent) }
+        .sidebar-toggle-btn { width: 24px; height: 100%; border-radius: 0; border-top: none; border-bottom: none; border-left: none; writing-mode: vertical-rl; font-size: 14px }
+        .bottom-toggle-btn { width: 100%; height: 20px; border-radius: 4px 4px 0 0; border-bottom: none; font-size: 12px }
+        .sidebar.hidden { display: none }
+        .bottom-panel-hidden #bottom-panel { display: none }
+        .bottom-panel-hidden #bottom-toggle i { transform: rotate(180deg) }
+
         .arch-load-btn {
             background: var(--warn);
             color: #000;
@@ -991,22 +1016,22 @@
 
 <body>
     <header>
-        <div class="logo">LNTU<span>EcoHub</span></div>
+        <div class="logo">EcoScan<span>Hub</span></div>
         <div class="sdot" id="sdot"></div>
         <div class="stext" id="stxt">Завантаження...</div>
         <div class="lupd" id="lupd"></div>
         <button id="btn-refresh" onclick="loadAll()" title="Оновити дані"
             style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:15px;line-height:1;margin-left:8px"
-            onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">↻</button>
+            onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'"><i class="ph-duotone ph-arrows-clockwise ico-muted"></i></button>
 
         <button onclick="openAnalytics()"
             style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px 11px;cursor:pointer;font-size:12px;white-space:nowrap;transition:.15s"
             onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
             onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'"
-            title="Аналітика та графіки по станціях">📊 Аналітика</button>
+            title="Аналітика та графіки по станціях"><i class="ph-duotone ph-chart-bar ico-accent"></i> Аналітика</button>
 
         <button id="btn-archive" class="arch-btn" onclick="toggleArchive()" title="Перегляд архівних даних">
-            📅 Архів
+            <i class="ph-duotone ph-calendar ico-warn"></i> Архів
         </button>
         <div id="arch-controls" class="arch-controls" style="display:none">
             <label>Дата:</label>
@@ -1020,7 +1045,7 @@
     <!-- ════ АНАЛІТИКА overlay ════ -->
     <div id="an-panel" style="display:none">
         <div class="an-topbar">
-            <div class="an-title">📊 Аналітика</div>
+            <div class="an-title"><i class="ph-duotone ph-chart-bar ico-accent"></i> Аналітика</div>
             <div class="an-period-bar">
                 <button class="an-pbtn active" data-p="month" onclick="setAnPeriod(this,'month')">Місяць</button>
                 <button class="an-pbtn" data-p="week" onclick="setAnPeriod(this,'week')">Тиждень</button>
@@ -1032,8 +1057,8 @@
                 <input type="date" id="an-to" class="an-date-in">
                 <button class="an-pbtn" onclick="applyAnCustom()">Застосувати</button>
             </div>
-            <button class="an-export-btn" onclick="exportAnalyticsPdf()">⬇ PDF</button>
-            <button class="an-close-btn" onclick="closeAnalytics()">✕ Закрити</button>
+            <button class="an-export-btn" onclick="exportAnalyticsPdf()"><i class="ph-duotone ph-download-simple ico-muted"></i> PDF</button>
+            <button class="an-close-btn" onclick="closeAnalytics()"><i class="ph-duotone ph-x ico-muted"></i> Закрити</button>
         </div>
         <div class="an-body">
             <div class="an-body-inner" id="an-body">
@@ -1043,7 +1068,10 @@
     </div>
 
     <div class="main">
-        <div class="sidebar">
+        <button id="sidebar-toggle" class="panel-toggle-btn sidebar-toggle-btn" onclick="toggleSidebar()" title="Приховати/показати панель">
+            <i class="ph-duotone ph-sidebar ico-muted"></i>
+        </button>
+        <div class="sidebar" id="sidebar">
             <div class="ss">
                 <div class="st">Параметри</div>
                 <div class="fg" id="fg">
@@ -1093,28 +1121,28 @@
             <div class="ss">
                 <div class="st">Шари</div>
                 <div class="fg" id="lg">
-                    <label class="fi active" data-l="stations"><input type="checkbox" checked>
+                    <label class="fi active" data-l="stations" data-tip="Моніторингові станції SaveEcoBot та IQAir з показниками PM2.5, PM10 та AQI"><input type="checkbox" checked>
                         <div class="fd" style="background:#4f8ef7"></div><span class="fl">Станції</span><span
                             class="fb">SaveEcoBot / IQAir</span>
                     </label>
-                    <label class="fi active" data-l="region"><input type="checkbox" checked>
+                    <label class="fi active" data-l="region" data-tip="Межі Волинської області (OSM R71064). Використовується для фільтрації датчиків"><input type="checkbox" checked>
                         <div class="fd" style="background:#34d399"></div><span class="fl">Межі Волині</span><span
                             class="fb">OSM</span>
                     </label>
-                    <label class="fi active" data-l="ecowitt"><input type="checkbox" checked>
-                        <div class="fd" style="background:#34d399"></div><span class="fl">🌿 EcoWitt ЛНТУ</span><span
+                    <label class="fi active" data-l="ecowitt" data-tip="Метеостанція ЛНТУ (EcoWitt). Показує температуру, вологість, тиск, вітер, сонячну радіацію та вологість ґрунту"><input type="checkbox" checked>
+                        <div class="fd" style="background:#34d399"></div><span class="fl"><i class="ph-duotone ph-plant ico-green"></i> EcoWitt ЛНТУ</span><span
                             class="fb">EcoWitt</span>
                     </label>
-                    <label class="fi" data-l="radiation"><input type="checkbox">
-                        <div class="fd" style="background:#34d399"></div><span class="fl">Радіація ☢️</span><span
+                    <label class="fi" data-l="radiation" data-tip="Датчики гамма-радіації SaveEcoBot (мкЗв/год). Відображаються тільки в межах Волинської обл."><input type="checkbox">
+                        <div class="fd" style="background:#34d399"></div><span class="fl"><i class="ph-duotone ph-radioactive ico-rad"></i> Радіація</span><span
                             class="fb">SaveEcoBot</span>
                     </label>
-                    <label class="fi" data-l="temp-grid"><input type="checkbox">
-                        <div class="fd" style="background:#60a5fa"></div><span class="fl">🌡 Температура
+                    <label class="fi" data-l="temp-grid" data-tip="Сітка температури 4×5 точок по всій Волині. Дані Open-Meteo, оновлюються щогодини"><input type="checkbox">
+                        <div class="fd" style="background:#60a5fa"></div><span class="fl"><i class="ph-duotone ph-thermometer ico-blue"></i> Температура
                             (сітка)</span><span class="fb">Open-Meteo</span>
                     </label>
-                    <label class="fi" data-l="wind-grid"><input type="checkbox">
-                        <div class="fd" style="background:#a78bfa"></div><span class="fl">💨 Вітер (сітка)</span><span
+                    <label class="fi" data-l="wind-grid" data-tip="Сітка вітру 4×5 точок по всій Волині. Стрілки показують напрям та швидкість (м/с)"><input type="checkbox">
+                        <div class="fd" style="background:#a78bfa"></div><span class="fl"><i class="ph-duotone ph-wind ico-purple"></i> Вітер (сітка)</span><span
                             class="fb">Open-Meteo</span>
                     </label>
                 </div>
@@ -1140,18 +1168,21 @@
             </div>
 
             <div class="ss">
-                <button class="btn bs" onclick="exportCSV()">📥 Експорт CSV</button>
+                <button class="btn bs" onclick="exportCSV()"><i class="ph-duotone ph-download ico-accent"></i> Експорт CSV</button>
             </div>
         </div>
 
         <div class="mw">
             <div id="map"></div>
-            <div class="bp2">
+            <button id="bottom-toggle" class="panel-toggle-btn bottom-toggle-btn" onclick="toggleBottomPanel()" title="Приховати/показати нижню панель">
+                <i class="ph-duotone ph-caret-down ico-muted" id="bottom-toggle-icon"></i>
+            </button>
+            <div class="bp2" id="bottom-panel">
                 <div class="pt">
-                    <div class="tab active" onclick="swTab('st',this)">📍 Станції</div>
-                    <div class="tab" onclick="swTab('wx',this)">🌤 Погода</div>
-                    <div class="tab" onclick="swTab('iq',this)">🟣 IQAir</div>
-                    <div class="tab" onclick="swTab('ew',this)">🌿 EcoWitt</div>
+                    <div class="tab active" onclick="swTab('st',this)"><i class="ph-duotone ph-map-pin ico-accent"></i> Станції</div>
+                    <div class="tab" onclick="swTab('wx',this)"><i class="ph-duotone ph-cloud-sun ico-blue"></i> Погода</div>
+                    <div class="tab" onclick="swTab('iq',this)"><i class="ph-duotone ph-circle-dashed ico-purple"></i> IQAir</div>
+                    <div class="tab" onclick="swTab('ew',this)"><i class="ph-duotone ph-plant ico-green"></i> EcoWitt</div>
                 </div>
                 <div class="pc active" id="tab-st"></div>
                 <div class="pc" id="tab-wx"></div>
@@ -1369,9 +1400,6 @@
                     S.radiation = S.radiation.filter(s => inRegion(s.lat, s.lng));
                     if (S.radiation.length !== before) {
                         renderRadiation();
-                        const radSt = S.radiation.length ? `☢️ ${S.radiation.length}` : '☢️ —';
-                        const el = document.getElementById('stxt');
-                        if (el) el.textContent = el.textContent.replace(/☢️ \S+/, radSt);
                     }
                 }
             })
@@ -1380,28 +1408,6 @@
         // ═══════════════════════════════════════════════
         // API CALLS
         // ═══════════════════════════════════════════════
-        async function fetchOpenAQ() {
-            try {
-                const r = await fetch('https://api.openaq.org/v3/locations?coordinates=50.95,25.0&radius=130000&limit=25', { headers: { Accept: 'application/json' } });
-                if (!r.ok) return [];
-                const d = await r.json();
-                return (d.results || []).map(l => ({
-                    name: l.name || l.locality || 'OpenAQ станція', lat: l.coordinates?.latitude, lng: l.coordinates?.longitude,
-                    city: l.locality || '—', id: l.id, source: 'openaq'
-                })).filter(x => x.lat && x.lng);
-            } catch { return [] }
-        }
-
-        async function fetchMeasurements(id) {
-            try {
-                const r = await fetch(`https://api.openaq.org/v3/locations/${id}/latest`, { headers: { Accept: 'application/json' } });
-                if (!r.ok) return null;
-                const d = await r.json(); const out = {};
-                for (const m of (d.results || [])) { const p = m.parameter?.toLowerCase().replace('.', ''); if (p) out[p] = m.value; }
-                return Object.keys(out).length ? out : null;
-            } catch { return null }
-        }
-
         async function fetchWeather(lat = 50.7472, lng = 25.3254) {
             try {
                 const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,surface_pressure,weather_code&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m&forecast_days=1&timezone=Europe%2FKyiv`;
@@ -1428,8 +1434,8 @@
             showLoad(true);
             document.getElementById('stxt').textContent = 'Отримання даних...';
 
-            const [aqLocs, wx, iq, rad, ew] = await Promise.all([
-                fetchOpenAQ(), fetchWeather(), fetchIQAir(),
+            const [wx, iq, rad, ew] = await Promise.all([
+                fetchWeather(), fetchIQAir(),
                 fetchSaveecobot(), fetchEcoWitt(),
             ]);
 
@@ -1499,9 +1505,7 @@
             fetchGridForecast().then(gd => { S.gridData = gd; buildTempLayer(); buildWindLayer(); }).catch(() => { });
             renderAll();
             document.getElementById('lupd').textContent = `Оновлено: ${new Date().toLocaleTimeString('uk-UA')}`;
-            const radSt = S.radiation.length ? `☢️ ${S.radiation.length}` : '☢️ —';
-            const ewSt = ew ? '🌿 ✅' : CFG.ECOWITT_APP_KEY ? '🌿 ❌' : '🌿 —';
-            document.getElementById('stxt').textContent = `Станцій: ${S.stations.length} | IQAir: ${iq ? '✅' : '⚠️'} | Радіація: ${radSt} | EcoWitt: ${ewSt}`;
+            document.getElementById('stxt').innerHTML = `Станцій: ${S.stations.length} | <i class="ph-duotone ph-map-pin ico-accent"></i> IQAir: ${iq ? '<i class="ph-duotone ph-check-circle ico-green"></i>' : '<i class="ph-duotone ph-warning ico-warn"></i>'} | <i class="ph-duotone ph-radioactive ico-rad"></i> Радіація: ${S.radiation.length || '—'} | <i class="ph-duotone ph-plant ico-green"></i> EcoWitt: ${S.ecowitt ? '<i class="ph-duotone ph-check-circle ico-green"></i>' : '—'}`;
             showLoad(false);
         }
 
@@ -1521,7 +1525,7 @@
                 });
                 const [lbl] = radLabel(s.value);
                 const mk = L.marker([s.lat, s.lng], { icon }).addTo(map).bindPopup(
-                    `<div><div class="ppt">☢️ Датчик #${s.id}</div>
+                    `<div><div class="ppt"><i class="ph-duotone ph-radioactive ico-rad"></i> Датчик #${s.id}</div>
                 <div class="ppr"><span>Доза</span><span class="ppv">${s.value?.toFixed(3) || '—'} ${s.unit}</span></div>
                 <div class="ppr"><span>Статус</span><span class="ppv">${lbl}</span></div>
                 <div style="font-size:10px;color:var(--text2);margin-top:5px">Джерело: SaveEcoBot</div>
@@ -1608,18 +1612,18 @@
             const f = (v, dec = 1) => v != null ? v.toFixed(dec) : '—';
             const icon = L.divIcon({
                 className: '',
-                html: `<div style="background:#34d399;width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.8);box-shadow:0 0 12px #34d399;display:flex;align-items:center;justify-content:center;font-size:9px">🌿</div>`,
+                html: `<div style="background:#34d399;width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.8);box-shadow:0 0 12px #34d399"></div>`,
                 iconSize: [16, 16], iconAnchor: [8, 8]
             });
             const popup = `<div>
-          <div class="ppt">🌿 EcoWitt — ЛНТУ</div>
+          <div class="ppt"><i class="ph-duotone ph-plant ico-green"></i> EcoWitt — ЛНТУ</div>
           <div style="font-size:10px;color:var(--text2);margin-bottom:7px">Метеостанція Луцького НТУ</div>
-          <div class="ppr"><span>🌡 Outdoor</span><span class="ppv">${f(ew.tempOut)}°C / ${f(ew.humOut, 0)}%</span></div>
-          <div class="ppr"><span>🏠 Indoor</span><span class="ppv">${f(ew.tempIn)}°C / ${f(ew.humIn, 0)}%</span></div>
-          <div class="ppr"><span>💨 Вітер</span><span class="ppv">${f(ew.windSpeed)} м/с (пор. ${f(ew.windGust)})</span></div>
-          <div class="ppr"><span>🌡 Тиск</span><span class="ppv">${f(ew.pressureRel, 0)} гПа</span></div>
+          <div class="ppr"><span><i class="ph-duotone ph-thermometer ico-blue"></i> Outdoor</span><span class="ppv">${f(ew.tempOut)}°C / ${f(ew.humOut, 0)}%</span></div>
+          <div class="ppr"><span><i class="ph-duotone ph-house ico-green"></i> Indoor</span><span class="ppv">${f(ew.tempIn)}°C / ${f(ew.humIn, 0)}%</span></div>
+          <div class="ppr"><span><i class="ph-duotone ph-wind ico-purple"></i> Вітер</span><span class="ppv">${f(ew.windSpeed)} м/с (пор. ${f(ew.windGust)})</span></div>
+          <div class="ppr"><span><i class="ph-duotone ph-gauge ico-blue"></i> Тиск</span><span class="ppv">${f(ew.pressureRel, 0)} гПа</span></div>
           <div class="ppr"><span>☀️ Сонце / УФ</span><span class="ppv">${f(ew.solar, 0)} Вт/м² · UVI ${f(ew.uvi, 0)}</span></div>
-          <div class="ppr"><span>🌧 Опади</span><span class="ppv">${f(ew.rainDaily)} мм/добу</span></div>
+          <div class="ppr"><span><i class="ph-duotone ph-cloud-rain ico-blue"></i> Опади</span><span class="ppv">${f(ew.rainDaily)} мм/добу</span></div>
           ${ew.soilMoisture != null ? `<div class="ppr"><span>🌱 Ґрунт</span><span class="ppv">${f(ew.soilMoisture, 0)}% вологість</span></div>` : ''}
           <div style="font-size:10px;color:var(--text2);margin-top:5px">Джерело: EcoWitt API</div>
         </div>`;
@@ -1666,14 +1670,14 @@
                 const [, cls] = aqiLabel(v, lim);
                 return `<div class="ppr"><span>${k}</span><span class="ppv ${cls}">${+v.toFixed(1)}${u ? ' ' + u : ''}</span></div>`;
             }).join('');
-            return `<div><div class="ppt">📍 ${st.name}</div>
+            return `<div><div class="ppt"><i class="ph-duotone ph-map-pin ico-accent"></i> ${st.name}</div>
     <div style="margin-bottom:7px;display:flex;justify-content:space-between">${srcLabel}<span style="font-size:10px;color:var(--text2)">${st.city}</span></div>
     ${fields}
-    ${d.temp != null ? `<div class="ppr"><span>🌡 Температура</span><span class="ppv">${d.temp.toFixed(1)}°C</span></div>` : ''}
-    ${d.humidity != null ? `<div class="ppr"><span>💧 Вологість</span><span class="ppv">${d.humidity.toFixed(0)}%</span></div>` : ''}
-    ${d.wind_speed != null ? `<div class="ppr"><span>💨 Вітер</span><span class="ppv">${d.wind_speed.toFixed(1)} м/с</span></div>` : ''}
-    ${d.pressure != null ? `<div class="ppr"><span>🌡 Тиск</span><span class="ppv">${d.pressure.toFixed(0)} гПа</span></div>` : ''}
-    ${d.temp != null ? `<div style="font-size:10px;color:var(--text2);margin-top:5px">🌦 Погода: Open-Meteo</div>` : ''}
+    ${d.temp != null ? `<div class="ppr"><span><i class="ph-duotone ph-thermometer ico-blue"></i> Температура</span><span class="ppv">${d.temp.toFixed(1)}°C</span></div>` : ''}
+    ${d.humidity != null ? `<div class="ppr"><span><i class="ph-duotone ph-drop ico-blue"></i> Вологість</span><span class="ppv">${d.humidity.toFixed(0)}%</span></div>` : ''}
+    ${d.wind_speed != null ? `<div class="ppr"><span><i class="ph-duotone ph-wind ico-purple"></i> Вітер</span><span class="ppv">${d.wind_speed.toFixed(1)} м/с</span></div>` : ''}
+    ${d.pressure != null ? `<div class="ppr"><span><i class="ph-duotone ph-gauge ico-blue"></i> Тиск</span><span class="ppv">${d.pressure.toFixed(0)} гПа</span></div>` : ''}
+    ${d.temp != null ? `<div style="font-size:10px;color:var(--text2);margin-top:5px"><i class="ph-duotone ph-cloud-sun ico-blue"></i> Погода: Open-Meteo</div>` : ''}
   </div>`;
         }
 
@@ -1689,7 +1693,7 @@
             if (!ew) {
                 const hasKeys = CFG.ECOWITT_APP_KEY && CFG.ECOWITT_API_KEY && CFG.ECOWITT_MAC;
                 el.innerHTML = `<div class="nd" style="text-align:left;padding:14px">
-      <b style="color:var(--warn)">🌿 EcoWitt — метеостанція ЛНТУ</b><br><br>
+      <b style="color:var(--warn)"><i class="ph-duotone ph-plant ico-green"></i> EcoWitt — метеостанція ЛНТУ</b><br><br>
       ${hasKeys ? '<b style="color:#ef4444">❌ Помилка підключення. Перевірте ключі.</b>' : '<b>Для підключення потрібні API ключі:</b>'}<br><br>
       1. Зайти на <a href="https://api.ecowitt.net" target="_blank" style="color:var(--accent)">api.ecowitt.net</a> → Developer<br>
       2. Create Application → отримати <code>application_key</code><br>
@@ -1701,15 +1705,15 @@
             }
             const f = (v, dec = 1) => v != null ? v.toFixed(dec) : '—';
             el.innerHTML = `
-      <div class="dc"><div class="dct">🌡 Outdoor</div><div class="dcv" style="color:#60a5fa">${f(ew.tempOut)}<span class="dcu">°C</span></div><div class="dcs">${f(ew.humOut, 0)}% вологість</div></div>
-      <div class="dc"><div class="dct">🏠 Indoor</div><div class="dcv" style="color:#34d399">${f(ew.tempIn)}<span class="dcu">°C</span></div><div class="dcs">${f(ew.humIn, 0)}% вологість</div></div>
-      <div class="dc"><div class="dct">💨 Вітер</div><div class="dcv" style="color:#a78bfa">${f(ew.windSpeed)}<span class="dcu">м/с</span></div><div class="dcs">Пориви: ${f(ew.windGust)} м/с</div></div>
-      <div class="dc"><div class="dct">🌡 Тиск</div><div class="dcv" style="color:#fb923c">${f(ew.pressureRel, 0)}<span class="dcu">гПа</span></div></div>
+      <div class="dc"><div class="dct"><i class="ph-duotone ph-thermometer ico-blue"></i> Outdoor</div><div class="dcv" style="color:#60a5fa">${f(ew.tempOut)}<span class="dcu">°C</span></div><div class="dcs">${f(ew.humOut, 0)}% вологість</div></div>
+      <div class="dc"><div class="dct"><i class="ph-duotone ph-house ico-green"></i> Indoor</div><div class="dcv" style="color:#34d399">${f(ew.tempIn)}<span class="dcu">°C</span></div><div class="dcs">${f(ew.humIn, 0)}% вологість</div></div>
+      <div class="dc"><div class="dct"><i class="ph-duotone ph-wind ico-purple"></i> Вітер</div><div class="dcv" style="color:#a78bfa">${f(ew.windSpeed)}<span class="dcu">м/с</span></div><div class="dcs">Пориви: ${f(ew.windGust)} м/с</div></div>
+      <div class="dc"><div class="dct"><i class="ph-duotone ph-gauge ico-blue"></i> Тиск</div><div class="dcv" style="color:#fb923c">${f(ew.pressureRel, 0)}<span class="dcu">гПа</span></div></div>
       <div class="dc"><div class="dct">☀️ Сонце / УФ</div><div class="dcv" style="color:#fbbf24">${f(ew.solar, 0)}<span class="dcu">Вт/м²</span></div><div class="dcs">UVI: ${f(ew.uvi, 0)}</div></div>
-      <div class="dc"><div class="dct">🌧 Опади</div><div class="dcv" style="color:#60a5fa">${f(ew.rainDaily)}<span class="dcu">мм/добу</span></div><div class="dcs">${f(ew.rainRate)} мм/год</div></div>
+      <div class="dc"><div class="dct"><i class="ph-duotone ph-cloud-rain ico-blue"></i> Опади</div><div class="dcv" style="color:#60a5fa">${f(ew.rainDaily)}<span class="dcu">мм/добу</span></div><div class="dcs">${f(ew.rainRate)} мм/год</div></div>
       ${ew.soilTemp != null ? `<div class="dc"><div class="dct">🌱 Ґрунт CH1</div><div class="dcv" style="color:#84cc16">${f(ew.soilTemp)}<span class="dcu">°C</span></div><div class="dcs">Волога: ${f(ew.soilMoisture, 0)}%</div></div>` : ''}
-      ${ew.tempCh7 != null ? `<div class="dc"><div class="dct">🌡 T&H CH7</div><div class="dcv" style="color:#34d399">${f(ew.tempCh7)}<span class="dcu">°C</span></div><div class="dcs">${f(ew.humCh7, 0)}%</div></div>` : ''}
-      ${ew.leafWetness != null ? `<div class="dc"><div class="dct">🍃 Листок CH1</div><div class="dcv" style="color:#34d399">${f(ew.leafWetness, 0)}<span class="dcu">%</span></div></div>` : ''}`;
+      ${ew.tempCh7 != null ? `<div class="dc"><div class="dct"><i class="ph-duotone ph-thermometer ico-blue"></i> T&H CH7</div><div class="dcv" style="color:#34d399">${f(ew.tempCh7)}<span class="dcu">°C</span></div><div class="dcs">${f(ew.humCh7, 0)}%</div></div>` : ''}
+      ${ew.leafWetness != null ? `<div class="dc"><div class="dct"><i class="ph-duotone ph-leaf ico-green"></i> Листок CH1</div><div class="dcv" style="color:#34d399">${f(ew.leafWetness, 0)}<span class="dcu">%</span></div></div>` : ''}`;
         }
 
         function renderAir() {
@@ -1773,7 +1777,7 @@
               <div class="dct">${ico} ${st.name}</div>
               <div class="dcv" style="color:#60a5fa;font-size:18px">${c.temperature_2m?.toFixed(1)}<span class="dcu">°C</span></div>
               <div class="dcs">${c.relative_humidity_2m}% вол.</div>
-              <div style="font-size:10px;color:var(--text2);margin-top:3px">💨 ${c.wind_speed_10m?.toFixed(1)} м/с · ${c.surface_pressure?.toFixed(0)} гПа</div>
+              <div style="font-size:10px;color:var(--text2);margin-top:3px"><i class="ph-duotone ph-wind ico-purple"></i> ${c.wind_speed_10m?.toFixed(1)} м/с · ${c.surface_pressure?.toFixed(0)} гПа</div>
             </div>`;
             }).join('');
             // Графік для першої станції
@@ -2128,7 +2132,7 @@
                     anChartBlock('an-ew-uvi', 'UV-індекс', '', ecowitt.map(r => r.uvi), '#c4b5fd'),
                 ].join('');
                 wxHtml += `<div class="an-card"><div class="an-card-hdr">
-                    <div><div class="an-card-name">🌿 EcoWitt ЛНТУ</div><div class="an-card-sub">Метеостанція ЛНТУ · 50.7358, 25.3247</div></div>
+                    <div><div class="an-card-name"><i class="ph-duotone ph-plant ico-green"></i> EcoWitt ЛНТУ</div><div class="an-card-sub">Метеостанція ЛНТУ · 50.7358, 25.3247</div></div>
                     <span class="an-src">EcoWitt</span></div>
                     <div class="an-grid">${g}</div></div>`;
             }
@@ -2146,7 +2150,7 @@
                 const n = aggTs.length;
 
                 radHtml = `<div class="an-card"><div class="an-card-hdr">
-                    <div><div class="an-card-name">☢️ Рівень радіації (Волинська обл.)</div>
+                    <div><div class="an-card-name"><i class="ph-duotone ph-radioactive ico-rad"></i> Рівень радіації (Волинська обл.)</div>
                     <div class="an-card-sub">${Object.keys(byRad).length} датчиків · SaveEcoBot</div></div>
                     </div>
                     <div class="an-grid">
@@ -2164,14 +2168,14 @@
                     <div style="position:relative;height:${Math.max(160, ranked.length * 22)}px;padding:4px 0"><canvas id="an-rad-bar"></canvas></div>
                 </div>`;
             } else {
-                radHtml = '<div class="an-nodata">☢️ Даних радіації за обраний період немає</div>';
+                radHtml = '<div class="an-nodata"><i class="ph-duotone ph-radioactive ico-rad"></i> Даних радіації за обраний період немає</div>';
             }
 
             body.innerHTML = sumHtml +
                 `<div class="an-tabs">
-                    <button class="an-tab active" onclick="switchAnTab(this,'air')">📍 Якість повітря</button>
-                    <button class="an-tab" onclick="switchAnTab(this,'weather')">🌤 Погода</button>
-                    <button class="an-tab" onclick="switchAnTab(this,'radiation')">☢️ Радіація</button>
+                    <button class="an-tab active" onclick="switchAnTab(this,'air')"><i class="ph-duotone ph-map-pin ico-accent"></i> Якість повітря</button>
+                    <button class="an-tab" onclick="switchAnTab(this,'weather')"><i class="ph-duotone ph-cloud-sun ico-blue"></i> Погода</button>
+                    <button class="an-tab" onclick="switchAnTab(this,'radiation')"><i class="ph-duotone ph-radioactive ico-rad"></i> Радіація</button>
                 </div>
                 <div id="an-tab-air">${airHtml}</div>
                 <div id="an-tab-weather" style="display:none">${wxHtml}</div>
@@ -2243,7 +2247,7 @@
 
             if (S.archiveMode) {
                 btn.classList.add('active');
-                btn.textContent = '✕ Закрити архів';
+                btn.innerHTML = '<i class="ph-duotone ph-x ico-muted"></i> Закрити архів';
                 controls.style.display = 'flex';
                 refreshBtn.disabled = true;
                 refreshBtn.style.opacity = '.3';
@@ -2262,7 +2266,7 @@
                 }
             } else {
                 btn.classList.remove('active');
-                btn.textContent = '📅 Архів';
+                btn.innerHTML = '<i class="ph-duotone ph-calendar ico-warn"></i> Архів';
                 controls.style.display = 'none';
                 refreshBtn.disabled = false;
                 refreshBtn.style.opacity = '1';
@@ -2428,10 +2432,8 @@
                 buildWindLayer();
                 renderAll();
 
-                const radTxt = S.radiation.length ? `☢️ ${S.radiation.length}` : '☢️ —';
-                const ewTxt = S.ecowitt ? '🌿 ✅' : '🌿 —';
                 document.getElementById('stxt').innerHTML =
-                    `<span class="arch-badge">АРХІВ</span> ${label} &nbsp;|&nbsp; Станцій: ${S.stations.length} | Радіація: ${radTxt} | EcoWitt: ${ewTxt}`;
+                    `<span class="arch-badge">АРХІВ</span> ${label} &nbsp;|&nbsp; Станцій: ${S.stations.length} | <i class="ph-duotone ph-radioactive ico-rad"></i> Радіація: ${S.radiation.length || '—'} | <i class="ph-duotone ph-plant ico-green"></i> EcoWitt: ${S.ecowitt ? '<i class="ph-duotone ph-check-circle ico-green"></i>' : '—'}`;
                 document.getElementById('lupd').textContent = `Архів: ${label}`;
 
             } catch (e) {
@@ -2440,6 +2442,39 @@
             }
             showLoad(false);
         }
+
+        // ── Panel visibility ──────────────────────────
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            const btn = document.getElementById('sidebar-toggle');
+            const hidden = sb.classList.toggle('hidden');
+            btn.querySelector('i').className = hidden
+                ? 'ph-duotone ph-sidebar-simple ico-muted'
+                : 'ph-duotone ph-sidebar ico-muted';
+            localStorage.setItem('sidebar_hidden', hidden ? '1' : '');
+            setTimeout(() => map.invalidateSize(), 300);
+        }
+
+        function toggleBottomPanel() {
+            const mw = document.querySelector('.mw');
+            const hidden = mw.classList.toggle('bottom-panel-hidden');
+            localStorage.setItem('bottompanel_hidden', hidden ? '1' : '');
+            setTimeout(() => map.invalidateSize(), 300);
+        }
+
+        // Restore panel states from localStorage
+        (function restorePanels() {
+            if (localStorage.getItem('sidebar_hidden')) {
+                const sb = document.getElementById('sidebar');
+                const btn = document.getElementById('sidebar-toggle');
+                if (sb) sb.classList.add('hidden');
+                if (btn) btn.querySelector('i').className = 'ph-duotone ph-sidebar-simple ico-muted';
+            }
+            if (localStorage.getItem('bottompanel_hidden')) {
+                const mw = document.querySelector('.mw');
+                if (mw) mw.classList.add('bottom-panel-hidden');
+            }
+        })();
 
         // Завантажуємо конфіг з сервера, потім дані
         fetch('/api/config').then(r => r.json()).then(d => { Object.assign(CFG, d); loadAll(); }).catch(() => loadAll());
