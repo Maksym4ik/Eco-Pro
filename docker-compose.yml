@@ -7,23 +7,10 @@ services:
     environment:
       - PORT=3000
       - DB_PATH=/data/eco_data.db
+    ports:
+      - "3001:3000"
     volumes:
       - eco_data:/data
-    networks:
-      - eco-net
-
-  nginx:
-    image: nginx:alpine
-    container_name: eco-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/certs:/etc/nginx/certs:ro
-    depends_on:
-      - eco-widget
     networks:
       - eco-net
 
@@ -34,7 +21,7 @@ services:
     environment:
       - ADMINER_DEFAULT_SERVER=eco-widget
     ports:
-      - "8080:8080"
+      - "8888:8080"
     networks:
       - eco-net
 
