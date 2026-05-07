@@ -1,4 +1,4 @@
-// Простий статичний сервер з proxy для API що блокують CORS
+// Статичний сервер + CORS proxy + SQLite архів екоданих
 // Запуск: npm start (або node server.js)
 import http from 'http';
 import https from 'https';
@@ -15,6 +15,9 @@ try {
     if (eq > 0) { const k = t.slice(0, eq).trim(), v = t.slice(eq + 1).trim(); if (k && !process.env[k]) process.env[k] = v; }
   }
 } catch {}
+
+import { getDb, querySnapshot, queryAvailableTimestamps, queryStationSeries, queryAllAirSeries, queryAllWeatherSeries, queryEcoWittSeries, queryRadiationSeries, hourTs } from './db.js';
+import { startScheduler } from './collector.js';
 
 const PORT = process.env.PORT || 3000;
 const __dir = path.dirname(fileURLToPath(import.meta.url));
@@ -89,6 +92,51 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ── /api/history ── архівні дані ──────────────────────────────────────────
+  if (req.url.startsWith('/api/history')) {
+    const url = new URL(req.url, `http://localhost`);
+    const p = url.pathname;
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'max-age=300' });
+
+    try {
+      if (p === '/api/history/analytics') {
+        const start = parseInt(url.searchParams.get('start') || '0', 10) || (hourTs() - 30 * 86400);
+        const end   = parseInt(url.searchParams.get('end')   || '0', 10) || hourTs();
+        res.end(JSON.stringify({
+          air:       queryAllAirSeries(start, end),
+          weather:   queryAllWeatherSeries(start, end),
+          radiation: queryRadiationSeries(start, end),
+          ecowitt:   queryEcoWittSeries(start, end),
+        }));
+      } else if (p === '/api/history/timestamps') {
+        const days = parseInt(url.searchParams.get('days') || '30', 10);
+        res.end(JSON.stringify(queryAvailableTimestamps(days)));
+      } else if (p === '/api/history/series') {
+        const name   = url.searchParams.get('name')   || '';
+        const source = url.searchParams.get('source') || 'saveecobot';
+        const start  = parseInt(url.searchParams.get('start') || String(hourTs() - 30 * 86400), 10);
+        const end    = parseInt(url.searchParams.get('end')   || String(hourTs()), 10);
+        res.end(JSON.stringify(queryStationSeries(name, source, start, end)));
+      } else {
+        // /api/history?ts=<unix> або ?date=YYYY-MM-DD&hour=H
+        let ts = parseInt(url.searchParams.get('ts') || '0', 10);
+        if (!ts) {
+          const dateStr = url.searchParams.get('date');
+          const hr      = parseInt(url.searchParams.get('hour') || '0', 10);
+          if (dateStr) {
+            ts = Math.floor(new Date(`${dateStr}T${String(hr).padStart(2,'0')}:00:00+03:00`).getTime() / 1000);
+          } else {
+            ts = hourTs();
+          }
+        }
+        res.end(JSON.stringify(querySnapshot(ts)));
+      }
+    } catch (e) {
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
   if (req.url === '/api/config') {
     res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' });
     res.end(JSON.stringify({
@@ -125,5 +173,14 @@ server.on('error', err => {
 server.listen(PORT, () => {
   console.log(`\n✅ EcoWidget сервер запущено`);
   console.log(`   Відкрити: http://localhost:${PORT}`);
-  console.log(`   Proxy:    http://localhost:${PORT}/proxy/saveecobot-maps/maps_data.js\n`);
+  console.log(`   Proxy:    http://localhost:${PORT}/proxy/saveecobot-maps/maps_data.js`);
+  console.log(`   Архів:    http://localhost:${PORT}/api/history\n`);
+
+  // Ініціалізуємо БД і запускаємо щогодинний збір
+  try {
+    getDb();
+    startScheduler();
+  } catch (e) {
+    console.error('[db] Помилка ініціалізації БД:', e.message);
+  }
 });

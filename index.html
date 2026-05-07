@@ -453,7 +453,7 @@
             line-height: 1.45;
             pointer-events: none;
             display: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,.6)
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .6)
         }
 
         .temp-chip {
@@ -551,19 +551,496 @@
                 transform: rotate(360deg)
             }
         }
+
+        /* ── Аналітика ──────────────────────────────── */
+        #an-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 5000;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .an-topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+
+        .an-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap
+        }
+
+        .an-period-bar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap
+        }
+
+        .an-pbtn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: 5px;
+            padding: 4px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: .15s
+        }
+
+        .an-pbtn:hover,
+        .an-pbtn.active {
+            border-color: var(--accent);
+            color: var(--accent)
+        }
+
+        .an-psep {
+            color: var(--border);
+            font-size: 12px
+        }
+
+        .an-date-in {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 5px;
+            padding: 3px 6px;
+            font-size: 12px;
+            outline: none;
+            cursor: pointer
+        }
+
+        .an-date-in:focus {
+            border-color: var(--accent)
+        }
+
+        .an-close-btn {
+            margin-left: auto;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: 6px;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: .15s
+        }
+
+        .an-close-btn:hover {
+            border-color: var(--danger);
+            color: var(--danger)
+        }
+
+        .an-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+        }
+
+        .an-body-inner {
+            max-width: 1280px;
+            margin: 0 auto
+        }
+
+        /* Summary */
+        .an-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+            margin-bottom: 22px
+        }
+
+        .an-scard {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 12px;
+            text-align: center
+        }
+
+        .an-sval {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 4px
+        }
+
+        .an-slbl {
+            font-size: 11px;
+            color: var(--text2)
+        }
+
+        .an-sunit {
+            font-size: 10px;
+            color: var(--text2);
+            margin-top: 2px
+        }
+
+        /* Station card */
+        .an-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-bottom: 14px
+        }
+
+        .an-card-hdr {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px
+        }
+
+        .an-card-name {
+            font-size: 14px;
+            font-weight: 600
+        }
+
+        .an-card-sub {
+            font-size: 11px;
+            color: var(--text2);
+            margin-top: 2px
+        }
+
+        .an-src {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            color: var(--text2);
+            margin-left: auto;
+            white-space: nowrap
+        }
+
+        .an-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px
+        }
+
+        @media (max-width: 900px) {
+            .an-grid {
+                grid-template-columns: repeat(2, 1fr)
+            }
+        }
+
+        .an-cw {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px
+        }
+
+        .an-cw-hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 6px
+        }
+
+        .an-cw-lbl {
+            font-size: 11px;
+            color: var(--text2)
+        }
+
+        .an-cw-avg {
+            font-size: 14px;
+            font-weight: 700
+        }
+
+        .an-canvas-wrap {
+            position: relative;
+            height: 130px
+        }
+
+        .an-nodata {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text2);
+            font-size: 14px;
+            line-height: 1.8
+        }
+
+        /* Tabs */
+        .an-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            flex-wrap: wrap
+        }
+
+        .an-tab {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: 6px;
+            padding: 6px 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: .15s;
+            white-space: nowrap
+        }
+
+        .an-tab:hover {
+            border-color: var(--accent);
+            color: var(--accent)
+        }
+
+        .an-tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            font-weight: 600
+        }
+
+        /* Stats row under chart label */
+        .an-stats-row {
+            display: flex;
+            gap: 10px;
+            font-size: 10px;
+            color: var(--text2);
+            margin-bottom: 5px;
+            flex-wrap: wrap
+        }
+
+        .an-stats-row b {
+            font-weight: 700
+        }
+
+        /* PDF export button */
+        .an-export-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: 6px;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: .15s
+        }
+
+        .an-export-btn:hover {
+            border-color: #22c55e;
+            color: #22c55e
+        }
+
+        /* Print styles */
+        @media print {
+            body>*:not(#an-panel) {
+                display: none !important
+            }
+
+            #an-panel {
+                position: static !important;
+                display: flex !important;
+                height: auto !important;
+                overflow: visible !important
+            }
+
+            .an-topbar {
+                display: none !important
+            }
+
+            .an-body {
+                overflow: visible !important;
+                padding: 10px !important
+            }
+
+            .an-canvas-wrap {
+                height: 180px !important
+            }
+
+            .an-tabs {
+                display: none !important
+            }
+
+            .an-tab-content {
+                display: block !important
+            }
+
+            #an-tab-air,
+            #an-tab-weather,
+            #an-tab-radiation {
+                display: block !important
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important
+            }
+        }
+
+        /* ── Архівний режим ─────────────────────────── */
+        .arch-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: 6px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            transition: border-color .2s, color .2s
+        }
+
+        .arch-btn:hover {
+            color: var(--text);
+            border-color: var(--accent)
+        }
+
+        .arch-btn.active {
+            border-color: var(--warn);
+            color: var(--warn)
+        }
+
+        .arch-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface2);
+            border: 1px solid var(--warn);
+            border-radius: 8px;
+            padding: 4px 10px;
+            animation: fadein .2s
+        }
+
+        @keyframes fadein {
+            from {
+                opacity: 0;
+                transform: translateX(-6px)
+            }
+
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .arch-controls label {
+            font-size: 11px;
+            color: var(--text2)
+        }
+
+        .arch-controls input[type=date],
+        .arch-controls select {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 5px;
+            padding: 3px 6px;
+            font-size: 12px;
+            cursor: pointer;
+            outline: none
+        }
+
+        .arch-controls input[type=date]:focus,
+        .arch-controls select:focus {
+            border-color: var(--accent)
+        }
+
+        .arch-load-btn {
+            background: var(--warn);
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer
+        }
+
+        .arch-load-btn:hover {
+            opacity: .85
+        }
+
+        .arch-badge {
+            background: var(--warn);
+            color: #000;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 4px;
+            padding: 2px 5px;
+            letter-spacing: .5px
+        }
     </style>
 </head>
 
 <body>
     <header>
-        <div class="logo">LNTU<span>EcoWidget</span></div>
+        <div class="logo">LNTU<span>EcoHub</span></div>
         <div class="sdot" id="sdot"></div>
         <div class="stext" id="stxt">Завантаження...</div>
         <div class="lupd" id="lupd"></div>
-        <button onclick="loadAll()" title="Оновити дані"
+        <button id="btn-refresh" onclick="loadAll()" title="Оновити дані"
             style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:15px;line-height:1;margin-left:8px"
             onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">↻</button>
+
+        <button onclick="openAnalytics()"
+            style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px 11px;cursor:pointer;font-size:12px;white-space:nowrap;transition:.15s"
+            onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+            onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'"
+            title="Аналітика та графіки по станціях">📊 Аналітика</button>
+
+        <button id="btn-archive" class="arch-btn" onclick="toggleArchive()" title="Перегляд архівних даних">
+            📅 Архів
+        </button>
+        <div id="arch-controls" class="arch-controls" style="display:none">
+            <label>Дата:</label>
+            <input type="date" id="arch-date" onchange="onArchDateChange()">
+            <label>Год:</label>
+            <select id="arch-hour"></select>
+            <button class="arch-load-btn" onclick="loadArchiveSelected()">Завантажити</button>
+        </div>
     </header>
+
+    <!-- ════ АНАЛІТИКА overlay ════ -->
+    <div id="an-panel" style="display:none">
+        <div class="an-topbar">
+            <div class="an-title">📊 Аналітика</div>
+            <div class="an-period-bar">
+                <button class="an-pbtn active" data-p="month" onclick="setAnPeriod(this,'month')">Місяць</button>
+                <button class="an-pbtn" data-p="week" onclick="setAnPeriod(this,'week')">Тиждень</button>
+                <button class="an-pbtn" data-p="day" onclick="setAnPeriod(this,'day')">Сьогодні</button>
+                <button class="an-pbtn" data-p="all" onclick="setAnPeriod(this,'all')">Весь час</button>
+                <span class="an-psep">|</span>
+                <input type="date" id="an-from" class="an-date-in">
+                <span style="color:var(--text2);font-size:12px">—</span>
+                <input type="date" id="an-to" class="an-date-in">
+                <button class="an-pbtn" onclick="applyAnCustom()">Застосувати</button>
+            </div>
+            <button class="an-export-btn" onclick="exportAnalyticsPdf()">⬇ PDF</button>
+            <button class="an-close-btn" onclick="closeAnalytics()">✕ Закрити</button>
+        </div>
+        <div class="an-body">
+            <div class="an-body-inner" id="an-body">
+                <div class="an-nodata">Завантаження...</div>
+            </div>
+        </div>
+    </div>
 
     <div class="main">
         <div class="sidebar">
@@ -708,6 +1185,9 @@
             weather: null,
             iqair: null,
             ecowitt: null,
+            archiveMode: false,
+            archiveTs: null,
+            archiveTsList: [],
             markers: [], circles: [], radMarkers: [], ewMarker: null,
             regionLayer: null, volynPoly: null,
             gridData: [], tempLayer: null, windLayer: null,
@@ -1413,6 +1893,553 @@
             el.addEventListener('mousemove', positionTip);
             el.addEventListener('mouseleave', () => { tipBox.style.display = 'none'; });
         });
+
+        // ═══════════════════════════════════════════════
+        // ANALYTICS
+        // ═══════════════════════════════════════════════
+        const AN = { startTs: 0, endTs: 0, charts: [], _data: null };
+
+        function anNow() { return Math.floor(Date.now() / 1000); }
+
+        function anPeriodRange(period) {
+            const end = anNow();
+            if (period === 'day') return { start: end - 86400, end };
+            if (period === 'week') return { start: end - 7 * 86400, end };
+            if (period === 'all') return { start: 0, end };
+            const now = new Date();
+            return { start: Math.floor(new Date(now.getFullYear(), now.getMonth(), 1) / 1000), end };
+        }
+
+        function openAnalytics() {
+            document.getElementById('an-panel').style.display = 'flex';
+            const { start, end } = anPeriodRange('month');
+            AN.startTs = start; AN.endTs = end;
+            document.getElementById('an-from').value = new Date(start * 1000).toISOString().slice(0, 10);
+            document.getElementById('an-to').value = new Date(end * 1000).toISOString().slice(0, 10);
+            loadAnalytics(start, end);
+        }
+
+        function closeAnalytics() {
+            document.getElementById('an-panel').style.display = 'none';
+            AN.charts.forEach(c => c.destroy()); AN.charts = [];
+        }
+
+        function exportAnalyticsPdf() {
+            // Show all tab content for printing, then restore
+            const tabs = ['an-tab-air', 'an-tab-weather', 'an-tab-radiation'];
+            const prev = tabs.map(id => document.getElementById(id)?.style.display || '');
+            tabs.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = ''; });
+            // Resize all charts to taller for print
+            AN.charts.forEach(c => c.resize());
+            window.print();
+            // Restore after dialog closes
+            setTimeout(() => {
+                tabs.forEach((id, i) => { const el = document.getElementById(id); if (el) el.style.display = prev[i]; });
+                AN.charts.forEach(c => c.resize());
+            }, 500);
+        }
+
+        function setAnPeriod(btn, period) {
+            document.querySelectorAll('.an-pbtn[data-p]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const { start, end } = anPeriodRange(period);
+            AN.startTs = start; AN.endTs = end;
+            document.getElementById('an-from').value = new Date(start * 1000).toISOString().slice(0, 10);
+            document.getElementById('an-to').value = new Date(end * 1000).toISOString().slice(0, 10);
+            loadAnalytics(start, end);
+        }
+
+        function applyAnCustom() {
+            const f = document.getElementById('an-from').value, t = document.getElementById('an-to').value;
+            if (!f || !t) return;
+            document.querySelectorAll('.an-pbtn[data-p]').forEach(b => b.classList.remove('active'));
+            AN.startTs = Math.floor(new Date(f + 'T00:00:00+03:00') / 1000);
+            AN.endTs = Math.floor(new Date(t + 'T23:59:59+03:00') / 1000);
+            loadAnalytics(AN.startTs, AN.endTs);
+        }
+
+        async function loadAnalytics(start, end) {
+            const body = document.getElementById('an-body');
+            body.innerHTML = '<div class="an-nodata">⏳ Завантаження даних...</div>';
+            AN.charts.forEach(c => c.destroy()); AN.charts = [];
+            try {
+                const r = await fetch(`/api/history/analytics?start=${start}&end=${end}`);
+                AN._data = await r.json();
+                renderAnalytics(AN._data);
+            } catch (e) {
+                body.innerHTML = `<div class="an-nodata">❌ Помилка: ${e.message}</div>`;
+            }
+        }
+
+        function anFmt(ts) {
+            if (!ts) return '—';
+            const d = new Date(ts * 1000);
+            if (isNaN(d.getTime())) return '—';
+            return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:00`;
+        }
+
+        function anStats(values, dec = 1) {
+            const v = values.filter(x => x != null && !isNaN(x));
+            if (!v.length) return null;
+            const min = Math.min(...v), max = Math.max(...v);
+            const avg = v.reduce((a, b) => a + b, 0) / v.length;
+            const f = n => Number(n).toFixed(dec);
+            return { min: f(min), avg: f(avg), max: f(max) };
+        }
+
+        function anSanitize(s) { return s.replace(/[^\wА-ЯҐЄІЇа-яґєії]/g, '_'); }
+
+        function switchAnTab(btn, tab) {
+            document.querySelectorAll('.an-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            ['air', 'weather', 'radiation'].forEach(t => {
+                const el = document.getElementById(`an-tab-${t}`);
+                if (el) el.style.display = t === tab ? '' : 'none';
+            });
+        }
+
+        function anChartBlock(id, label, unit, values, color) {
+            const decRound = label.includes('AQI') || label.includes('Вологість') || label.includes('датчик') ? 0 : 1;
+            const s = anStats(values, decRound);
+            const statsRow = s
+                ? `<div class="an-stats-row">
+                    <span>мін: <b style="color:${color}">${s.min}</b></span>
+                    <span>сер: <b style="color:${color}">${s.avg}</b></span>
+                    <span>макс: <b style="color:${color}">${s.max}</b></span>
+                   </div>`
+                : '';
+            return `<div class="an-cw">
+                <div class="an-cw-hdr"><span class="an-cw-lbl">${label} <small>${unit}</small></span></div>
+                ${statsRow}
+                <div class="an-canvas-wrap"><canvas id="${id}"></canvas></div>
+            </div>`;
+        }
+
+        function anScard(label, val, unit, color) {
+            return `<div class="an-scard">
+                <div class="an-sval" style="color:${color}">${val}</div>
+                <div class="an-slbl">${label}</div><div class="an-sunit">${unit}</div>
+            </div>`;
+        }
+
+        function groupByName(arr) {
+            const res = {};
+            for (const row of arr) {
+                if (!res[row.name]) res[row.name] = { ...row, rows: [] };
+                res[row.name].rows.push(row);
+            }
+            return res;
+        }
+
+        function anChartOpts(extra = {}) {
+            return {
+                responsive: true, maintainAspectRatio: false, animation: { duration: 300 },
+                plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e2533', titleColor: '#8b98b0', bodyColor: '#e2e8f0', borderColor: '#2a3040', borderWidth: 1 } },
+                scales: {
+                    x: { ticks: { color: '#8b98b0', font: { size: 10 }, maxRotation: 45 }, grid: { color: '#2a3040' } },
+                    y: { ticks: { color: '#8b98b0', font: { size: 10 } }, grid: { color: '#2a3040' } }
+                }, ...extra
+            };
+        }
+
+        function anMakeChart(id, labels, values, color, n) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const isBar = n <= 1;
+            const ch = new Chart(el, {
+                type: isBar ? 'bar' : 'line',
+                data: {
+                    labels, datasets: [{
+                        data: values, borderColor: color,
+                        backgroundColor: isBar ? color + 'bb' : color + '22',
+                        borderWidth: 2, pointRadius: n < 15 ? 3 : 1, pointHoverRadius: 5,
+                        tension: 0.4, fill: !isBar, spanGaps: true
+                    }]
+                },
+                options: anChartOpts()
+            });
+            AN.charts.push(ch);
+        }
+
+        function renderAnalytics({ air = [], weather = [], radiation = [], ecowitt = [] }) {
+            const body = document.getElementById('an-body');
+            if (!air.length && !weather.length && !radiation.length && !ecowitt.length) {
+                const f = new Date(AN.startTs * 1000).toLocaleDateString('uk-UA');
+                const t = new Date(AN.endTs * 1000).toLocaleDateString('uk-UA');
+                body.innerHTML = `<div class="an-nodata">📭 Немає даних за ${f} — ${t}<br>
+                    <small>Дані збираються щогодини автоматично.</small></div>`;
+                return;
+            }
+
+            const byAir = groupByName(air);
+            const byWx = groupByName(weather);
+            const byRad = groupByName(radiation);
+
+            // ── Summary ───────────────────────────────────
+            const sAir = anStats(air.map(r => r.pm25)); const sAqi = anStats(air.map(r => r.aqi), 0);
+            const sWx = anStats(weather.map(r => r.temp)); const sRad = anStats(radiation.map(r => r.gamma_usv), 3);
+            let sumHtml = '<div class="an-summary">';
+            if (sAir) sumHtml += anScard('PM2.5 сер.', sAir.avg, 'мкг/м³', '#ef4444');
+            if (sAqi) sumHtml += anScard('AQI сер.', sAqi.avg, 'US AQI', '#e879f9');
+            if (sWx) sumHtml += anScard('Темп. сер.', sWx.avg, '°C', '#60a5fa');
+            if (sRad) sumHtml += anScard('Радіація сер.', sRad.avg, 'мкЗв/год', '#34d399');
+            if (ecowitt.length) {
+                const ewT = anStats(ecowitt.map(r => r.temp_out));
+                if (ewT) sumHtml += anScard('EcoWitt °C', ewT.avg, '°C вулиця', '#34d399');
+            }
+            sumHtml += '</div>';
+
+            // ── Air tab ───────────────────────────────────
+            const airHtml = Object.values(byAir).map(st => {
+                const sid = anSanitize(st.name);
+                const src = st.source === 'iqair' ? 'IQAir' : 'SaveEcoBot';
+                const g = [
+                    anChartBlock(`an-${sid}-pm25`, 'PM2.5', 'мкг/м³', st.rows.map(r => r.pm25), '#ef4444'),
+                    anChartBlock(`an-${sid}-pm10`, 'PM10', 'мкг/м³', st.rows.map(r => r.pm10), '#f59e0b'),
+                    anChartBlock(`an-${sid}-aqi`, 'AQI', 'US', st.rows.map(r => r.aqi), '#e879f9'),
+                ].join('');
+                return `<div class="an-card"><div class="an-card-hdr">
+                    <div><div class="an-card-name">${st.name}</div><div class="an-card-sub">${st.lat?.toFixed(4)}, ${st.lng?.toFixed(4)}</div></div>
+                    <span class="an-src">${src}</span></div>
+                    <div class="an-grid">${g}</div></div>`;
+            }).join('') || '<div class="an-nodata">📭 Даних якості повітря немає</div>';
+
+            // ── Weather tab ───────────────────────────────
+            let wxHtml = Object.values(byWx).map(st => {
+                const sid = anSanitize(st.name);
+                const g = [
+                    anChartBlock(`an-wx-${sid}-tmp`, 'Температура', '°C', st.rows.map(r => r.temp), '#60a5fa'),
+                    anChartBlock(`an-wx-${sid}-hum`, 'Вологість', '%', st.rows.map(r => r.humidity), '#34d399'),
+                    anChartBlock(`an-wx-${sid}-pr`, 'Тиск', 'гПа', st.rows.map(r => r.pressure), '#fb923c'),
+                    anChartBlock(`an-wx-${sid}-ws`, 'Вітер', 'м/с', st.rows.map(r => r.wind_speed), '#a78bfa'),
+                ].join('');
+                return `<div class="an-card"><div class="an-card-hdr">
+                    <div><div class="an-card-name">${st.name}</div><div class="an-card-sub">${st.lat?.toFixed(4)}, ${st.lng?.toFixed(4)}</div></div>
+                    <span class="an-src">Open-Meteo</span></div>
+                    <div class="an-grid">${g}</div></div>`;
+            }).join('');
+            if (ecowitt.length) {
+                const g = [
+                    anChartBlock('an-ew-tout', 'Температура (вулиця)', '°C', ecowitt.map(r => r.temp_out), '#60a5fa'),
+                    anChartBlock('an-ew-hout', 'Вологість (вулиця)', '%', ecowitt.map(r => r.hum_out), '#34d399'),
+                    anChartBlock('an-ew-ws', 'Швидкість вітру', 'м/с', ecowitt.map(r => r.wind_speed), '#a78bfa'),
+                    anChartBlock('an-ew-pres', 'Тиск', 'гПа', ecowitt.map(r => r.pressure_rel), '#fb923c'),
+                    anChartBlock('an-ew-solar', 'Сонячна радіація', 'Вт/м²', ecowitt.map(r => r.solar), '#fde68a'),
+                    anChartBlock('an-ew-uvi', 'UV-індекс', '', ecowitt.map(r => r.uvi), '#c4b5fd'),
+                ].join('');
+                wxHtml += `<div class="an-card"><div class="an-card-hdr">
+                    <div><div class="an-card-name">🌿 EcoWitt ЛНТУ</div><div class="an-card-sub">Метеостанція ЛНТУ · 50.7358, 25.3247</div></div>
+                    <span class="an-src">EcoWitt</span></div>
+                    <div class="an-grid">${g}</div></div>`;
+            }
+            if (!wxHtml) wxHtml = '<div class="an-nodata">📭 Даних погоди немає</div>';
+
+            // ── Radiation tab ─────────────────────────────
+            let radHtml = '';
+            if (radiation.length) {
+                const byTs = {};
+                for (const r of radiation) { if (!byTs[r.ts]) byTs[r.ts] = []; byTs[r.ts].push(r.gamma_usv); }
+                const aggTs = Object.keys(byTs).map(Number).sort();
+                const aggAvg = aggTs.map(ts => { const v = byTs[ts].filter(x => x != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; });
+                const aggMax = aggTs.map(ts => Math.max(...byTs[ts].filter(x => x != null)));
+                const aggLbl = aggTs.map(anFmt);
+                const n = aggTs.length;
+
+                radHtml = `<div class="an-card"><div class="an-card-hdr">
+                    <div><div class="an-card-name">☢️ Рівень радіації (Волинська обл.)</div>
+                    <div class="an-card-sub">${Object.keys(byRad).length} датчиків · SaveEcoBot</div></div>
+                    </div>
+                    <div class="an-grid">
+                        ${anChartBlock('an-rad-avg', 'Середня гамма', 'мкЗв/год', aggAvg, '#34d399')}
+                        ${anChartBlock('an-rad-max', 'Максимальна гамма', 'мкЗв/год', aggMax, '#f97316')}
+                    </div></div>`;
+
+                const ranked = Object.values(byRad)
+                    .map(st => ({ name: st.name, avg: parseFloat(anStats(st.rows.map(r => r.gamma_usv), 3)?.avg ?? 0) }))
+                    .sort((a, b) => b.avg - a.avg).slice(0, 15);
+
+                radHtml += `<div class="an-card"><div class="an-card-hdr">
+                    <div><div class="an-card-name">Топ датчики (середнє мкЗв/год)</div>
+                    <div class="an-card-sub">Топ ${ranked.length} з ${Object.keys(byRad).length}</div></div></div>
+                    <div style="position:relative;height:${Math.max(160, ranked.length * 22)}px;padding:4px 0"><canvas id="an-rad-bar"></canvas></div>
+                </div>`;
+            } else {
+                radHtml = '<div class="an-nodata">☢️ Даних радіації за обраний період немає</div>';
+            }
+
+            body.innerHTML = sumHtml +
+                `<div class="an-tabs">
+                    <button class="an-tab active" onclick="switchAnTab(this,'air')">📍 Якість повітря</button>
+                    <button class="an-tab" onclick="switchAnTab(this,'weather')">🌤 Погода</button>
+                    <button class="an-tab" onclick="switchAnTab(this,'radiation')">☢️ Радіація</button>
+                </div>
+                <div id="an-tab-air">${airHtml}</div>
+                <div id="an-tab-weather" style="display:none">${wxHtml}</div>
+                <div id="an-tab-radiation" style="display:none">${radHtml}</div>`;
+
+            // ── Build Charts ──────────────────────────────
+            for (const st of Object.values(byAir)) {
+                const sid = anSanitize(st.name), lbl = st.rows.map(r => anFmt(r.ts)), n = st.rows.length;
+                anMakeChart(`an-${sid}-pm25`, lbl, st.rows.map(r => r.pm25), '#ef4444', n);
+                anMakeChart(`an-${sid}-pm10`, lbl, st.rows.map(r => r.pm10), '#f59e0b', n);
+                anMakeChart(`an-${sid}-aqi`, lbl, st.rows.map(r => r.aqi), '#e879f9', n);
+            }
+            for (const st of Object.values(byWx)) {
+                const sid = anSanitize(st.name), lbl = st.rows.map(r => anFmt(r.ts)), n = st.rows.length;
+                anMakeChart(`an-wx-${sid}-tmp`, lbl, st.rows.map(r => r.temp), '#60a5fa', n);
+                anMakeChart(`an-wx-${sid}-hum`, lbl, st.rows.map(r => r.humidity), '#34d399', n);
+                anMakeChart(`an-wx-${sid}-pr`, lbl, st.rows.map(r => r.pressure), '#fb923c', n);
+                anMakeChart(`an-wx-${sid}-ws`, lbl, st.rows.map(r => r.wind_speed), '#a78bfa', n);
+            }
+            if (ecowitt.length) {
+                const lbl = ecowitt.map(r => anFmt(r.ts)), n = ecowitt.length;
+                anMakeChart('an-ew-tout', lbl, ecowitt.map(r => r.temp_out), '#60a5fa', n);
+                anMakeChart('an-ew-hout', lbl, ecowitt.map(r => r.hum_out), '#34d399', n);
+                anMakeChart('an-ew-ws', lbl, ecowitt.map(r => r.wind_speed), '#a78bfa', n);
+                anMakeChart('an-ew-pres', lbl, ecowitt.map(r => r.pressure_rel), '#fb923c', n);
+                anMakeChart('an-ew-solar', lbl, ecowitt.map(r => r.solar), '#fde68a', n);
+                anMakeChart('an-ew-uvi', lbl, ecowitt.map(r => r.uvi), '#c4b5fd', n);
+            }
+            if (radiation.length) {
+                const byTs2 = {};
+                for (const r of radiation) { if (!byTs2[r.ts]) byTs2[r.ts] = []; byTs2[r.ts].push(r.gamma_usv); }
+                const aggTs2 = Object.keys(byTs2).map(Number).sort();
+                const aggAvg2 = aggTs2.map(ts => { const v = byTs2[ts].filter(x => x != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; });
+                const aggMax2 = aggTs2.map(ts => Math.max(...byTs2[ts].filter(x => x != null)));
+                anMakeChart('an-rad-avg', aggTs2.map(anFmt), aggAvg2, '#34d399', aggTs2.length);
+                anMakeChart('an-rad-max', aggTs2.map(anFmt), aggMax2, '#f97316', aggTs2.length);
+
+                const ranked2 = Object.values(byRad)
+                    .map(st => ({ name: st.name.replace('RAD-', '#'), avg: parseFloat(anStats(st.rows.map(r => r.gamma_usv), 3)?.avg ?? 0) }))
+                    .sort((a, b) => b.avg - a.avg).slice(0, 15);
+                const barEl = document.getElementById('an-rad-bar');
+                if (barEl) {
+                    const ch = new Chart(barEl, {
+                        type: 'bar',
+                        data: {
+                            labels: ranked2.map(s => s.name), datasets: [{
+                                data: ranked2.map(s => s.avg),
+                                backgroundColor: ranked2.map(s => s.avg < 0.10 ? '#34d399bb' : s.avg < 0.30 ? '#fbbf24bb' : s.avg < 1.00 ? '#f97316bb' : '#ef4444bb'),
+                                borderWidth: 0
+                            }]
+                        },
+                        options: anChartOpts({ indexAxis: 'y' })
+                    });
+                    AN.charts.push(ch);
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════
+        // ARCHIVE MODE
+        // ═══════════════════════════════════════════════
+
+        async function toggleArchive() {
+            S.archiveMode = !S.archiveMode;
+            const btn = document.getElementById('btn-archive');
+            const controls = document.getElementById('arch-controls');
+            const refreshBtn = document.getElementById('btn-refresh');
+            const dot = document.getElementById('sdot');
+
+            if (S.archiveMode) {
+                btn.classList.add('active');
+                btn.textContent = '✕ Закрити архів';
+                controls.style.display = 'flex';
+                refreshBtn.disabled = true;
+                refreshBtn.style.opacity = '.3';
+                dot.style.background = 'var(--warn)';
+                dot.style.boxShadow = '0 0 6px var(--warn)';
+                dot.style.animation = 'none';
+
+                // Завантажуємо список доступних timestamp-ів
+                await fetchArchiveTimestamps();
+
+                // Встановлюємо поточну дату за замовчуванням
+                const dateInput = document.getElementById('arch-date');
+                if (!dateInput.value) {
+                    dateInput.value = new Date().toISOString().slice(0, 10);
+                    onArchDateChange();
+                }
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = '📅 Архів';
+                controls.style.display = 'none';
+                refreshBtn.disabled = false;
+                refreshBtn.style.opacity = '1';
+                dot.style.background = 'var(--accent2)';
+                dot.style.boxShadow = '0 0 6px var(--accent2)';
+                dot.style.animation = '';
+                S.archiveMode = false;
+                S.archiveTs = null;
+                // Повертаємось до live-даних
+                loadAll();
+            }
+        }
+
+        async function fetchArchiveTimestamps() {
+            try {
+                const r = await fetch('/api/history/timestamps?days=90');
+                S.archiveTsList = await r.json();
+            } catch { S.archiveTsList = []; }
+        }
+
+        function onArchDateChange() {
+            const dateVal = document.getElementById('arch-date').value;
+            const hourSel = document.getElementById('arch-hour');
+            hourSel.innerHTML = '';
+
+            if (!dateVal) return;
+
+            // Знаходимо доступні години для обраної дати
+            const datePrefix = new Date(dateVal + 'T00:00:00').toISOString().slice(0, 10);
+            const available = new Set();
+
+            for (const ts of S.archiveTsList) {
+                const d = new Date(ts * 1000);
+                const dStr = d.toISOString().slice(0, 10);
+                if (dStr === datePrefix) available.add(d.getUTCHours());
+            }
+
+            // Якщо є доступні — показуємо їх, інакше показуємо всі 0-23
+            const hours = available.size > 0
+                ? [...available].sort((a, b) => a - b)
+                : Array.from({ length: 24 }, (_, i) => i);
+
+            for (const h of hours) {
+                const opt = document.createElement('option');
+                opt.value = h;
+                opt.textContent = String(h).padStart(2, '0') + ':00';
+                if (available.has(h)) opt.style.color = 'var(--accent2)';
+                hourSel.appendChild(opt);
+            }
+
+            // Вибираємо найближчу до поточного часу
+            const nowH = new Date().getHours();
+            const closest = hours.reduce((a, b) => Math.abs(b - nowH) < Math.abs(a - nowH) ? b : a, hours[0]);
+            hourSel.value = closest;
+        }
+
+        async function loadArchiveSelected() {
+            const date = document.getElementById('arch-date').value;
+            const hour = parseInt(document.getElementById('arch-hour').value, 10);
+            if (!date) return;
+
+            // Рахуємо Unix timestamp для вибраної дати/години (UTC+3)
+            const ts = Math.floor(new Date(`${date}T${String(hour).padStart(2, '0')}:00:00+03:00`).getTime() / 1000);
+            await loadArchive(ts, date, hour);
+        }
+
+        async function loadArchive(ts, dateStr, hour) {
+            showLoad(true);
+            const label = dateStr
+                ? `${dateStr} ${String(hour).padStart(2, '0')}:00`
+                : new Date(ts * 1000).toLocaleString('uk-UA');
+            document.getElementById('stxt').innerHTML =
+                `<span class="arch-badge">АРХІВ</span> ${label} — завантаження...`;
+
+            try {
+                const r = await fetch(`/api/history?ts=${ts}`);
+                const snap = await r.json();
+                S.archiveTs = ts;
+
+                if (!snap.air?.length && !snap.radiation?.length && !snap.ecowitt) {
+                    document.getElementById('stxt').innerHTML =
+                        `<span class="arch-badge">АРХІВ</span> ${label} — <span style="color:var(--warn)">даних немає</span>`;
+                    showLoad(false);
+                    return;
+                }
+
+                // ── Маппінг weather по імені станції ───────────────────────
+                const wxByName = {};
+                for (const w of (snap.weather || [])) wxByName[w.name] = w;
+
+                // ── Будуємо S.stations з архівних даних ────────────────────
+                S.stations = (snap.air || []).map(a => {
+                    const wx = wxByName[a.name] || {};
+                    // Знаходимо найближче відоме місто
+                    const km = (p1, p2) => { const R = 6371, p = Math.PI / 180, dl = (p2.lat - p1.lat) * p, dn = (p2.lng - p1.lng) * p; return R * 2 * Math.asin(Math.sqrt(Math.sin(dl / 2) ** 2 + Math.cos(p1.lat * p) * Math.cos(p2.lat * p) * Math.sin(dn / 2) ** 2)); };
+                    let near = KNOWN[0], nearD = Infinity;
+                    for (const k of KNOWN) { const d = km(k, { lat: a.lat, lng: a.lng }); if (d < nearD) { nearD = d; near = k; } }
+                    return {
+                        name: a.name,
+                        lat: a.lat,
+                        lng: a.lng,
+                        city: nearD < 20 ? near.city : 'Волинська обл.',
+                        data: {
+                            pm25: a.pm25, pm10: a.pm10, aqi: a.aqi,
+                            temp: wx.temp ?? null,
+                            humidity: wx.humidity ?? null,
+                            pressure: wx.pressure ?? null,
+                            wind_speed: wx.wind_speed ?? null,
+                            weather_code: wx.weather_code ?? null,
+                            source: a.source,
+                        },
+                        hasReal: true,
+                        sebSource: a.source === 'saveecobot',
+                        iqSource: a.source === 'iqair',
+                        wx: null,
+                        archiveMode: true,
+                    };
+                });
+
+                // IQAir з архіву (зберігається як окрема станція)
+                const iqRow = (snap.air || []).find(a => a.source === 'iqair');
+                S.iqair = iqRow ? { current: { pollution: { aqius: iqRow.aqi, p2: { conc: iqRow.pm25 } } } } : null;
+
+                // ── Радіація ───────────────────────────────────────────────
+                S.radiation = (snap.radiation || []).map(r => ({
+                    id: parseInt(r.name.replace('RAD-', '')) || 0,
+                    lat: r.lat,
+                    lng: r.lng,
+                    value: r.gamma_usv,
+                    valueRaw: r.gamma_usv * 1000,
+                    unit: 'мкЗв/год',
+                    source: 'saveecobot',
+                }));
+
+                // ── EcoWitt (snake_case → camelCase) ──────────────────────
+                const ew = snap.ecowitt;
+                S.ecowitt = ew ? {
+                    tempOut: ew.temp_out, humOut: ew.hum_out,
+                    dewPoint: ew.dew_point, feelsLike: ew.feels_like,
+                    tempIn: ew.temp_in, humIn: ew.hum_in,
+                    windSpeed: ew.wind_speed, windGust: ew.wind_gust,
+                    windDir: ew.wind_dir,
+                    pressureRel: ew.pressure_rel, pressureAbs: ew.pressure_abs,
+                    solar: ew.solar, uvi: ew.uvi,
+                    rainRate: ew.rain_rate, rainDaily: ew.rain_daily,
+                    soilTemp: ew.soil_temp, soilMoisture: ew.soil_moisture,
+                } : null;
+
+                // ── Сітка (wind_speed → windSpeed) ────────────────────────
+                S.gridData = (snap.grid || []).map(g => ({
+                    lat: g.lat, lng: g.lng,
+                    temp: g.temp,
+                    windSpeed: g.wind_speed,
+                    windDir: g.wind_dir,
+                    humidity: g.humidity,
+                }));
+
+                // ── Рендер ────────────────────────────────────────────────
+                renderMap();
+                renderRadiation();
+                renderEWMarker();
+                buildTempLayer();
+                buildWindLayer();
+                renderAll();
+
+                const radTxt = S.radiation.length ? `☢️ ${S.radiation.length}` : '☢️ —';
+                const ewTxt = S.ecowitt ? '🌿 ✅' : '🌿 —';
+                document.getElementById('stxt').innerHTML =
+                    `<span class="arch-badge">АРХІВ</span> ${label} &nbsp;|&nbsp; Станцій: ${S.stations.length} | Радіація: ${radTxt} | EcoWitt: ${ewTxt}`;
+                document.getElementById('lupd').textContent = `Архів: ${label}`;
+
+            } catch (e) {
+                document.getElementById('stxt').innerHTML =
+                    `<span class="arch-badge">АРХІВ</span> Помилка: ${e.message}`;
+            }
+            showLoad(false);
+        }
 
         // Завантажуємо конфіг з сервера, потім дані
         fetch('/api/config').then(r => r.json()).then(d => { Object.assign(CFG, d); loadAll(); }).catch(() => loadAll());

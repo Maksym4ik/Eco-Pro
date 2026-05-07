@@ -1,4 +1,4 @@
-# LNTUEcoWidget — Волинська область
+# LNTU EcoHub — Волинська область
 
 Дипломний проект: **"Аналіз та візуалізація відкритих екологічних даних для Волинської області"**
 Університет: ЛНТУ (Луцький національний технічний університет)
@@ -8,23 +8,40 @@
 Проект — одна монолітна сторінка. Весь JS/CSS inline в `index.html`.
 
 ```
-index.html        ← головний файл (весь код тут)
-server.js         ← Node.js сервер: статика + CORS proxy + /api/config
-package.json      ← npm start
-.env              ← API ключі (не в git)
-.env.example      ← шаблон ключів
-node_modules/     ← залежності сервера
+index.html          ← головний файл (весь код тут)
+server.js           ← Node.js сервер: статика + CORS proxy + /api/* + /proxy/*
+db.js               ← SQLite схема та всі запити (better-sqlite3)
+collector.js        ← щогодинний збір даних з усіх API + запис в БД
+package.json        ← npm start
+.env                ← API ключі (не в git)
+.env.example        ← шаблон ключів
+Dockerfile          ← Docker-образ
+docker-compose.yml  ← eco-widget + nginx + adminer
+nginx/nginx.conf    ← Nginx конфіг (reverse proxy, rate limit, gzip)
+nginx/certs/        ← TLS-сертифікати (не в git)
+node_modules/       ← залежності сервера
+eco_data.db         ← SQLite БД (не в git, монтується як volume в Docker)
 ```
 
 > `src/`, `dist/`, `demo/`, `rollup.config.js` — **видалено**, більше не використовуються.
 
-## Запуск
+## Запуск (локально)
 
 ```bash
 npm start
 ```
 
 Відкрити: http://localhost:3000/
+
+## Запуск (Docker)
+
+```bash
+cp .env.example .env   # заповнити ключі
+docker compose up -d --build
+```
+
+- Виджет: http://localhost/
+- Adminer (SQLite): http://localhost:8080/
 
 ## Архітектура index.html
 
@@ -43,7 +60,8 @@ const S = {
   stations: [], radiation: [], sebAir: [], weather: null, iqair: null, ecowitt: null,
   markers: [], circles: [], radMarkers: [], ewMarker: null,
   gridData: [], tempLayer: null, windLayer: null,
-  regionLayer: null, volynPoly: null, charts: {}
+  regionLayer: null, volynPoly: null, charts: {},
+  archiveMode: false, archiveTs: null, archiveTsList: []
 };
 ```
 
@@ -76,6 +94,18 @@ const PN = { pm25:'PM2.5', pm10:'PM10', aqi:'AQI', temp:'Температура'
 10. `fetchOSMRegion()` → OSM межі Волині (async, потім re-filter радіації)
 11. Рендер всіх шарів
 
+### Архівний режим
+- Кнопка **📅 Архів** в хедері — toggle
+- Вибір дати та години → `loadArchive(ts)` → `GET /api/history?ts=`
+- Відповідь маппується назад в `S` і рендериться тими ж функціями
+
+### Аналітика (`#an-panel`)
+- Кнопка **📊 Аналітика** в хедері — відкриває full-screen overlay
+- Вибір periodу або кастомного діапазону → `GET /api/history/analytics?start=&end=`
+- 3 вкладки: **Якість повітря** / **Погода** / **Радіація**
+- Кожен параметр — Chart.js лінійний/бар-чарт + мін/сер/макс над графіком
+- Кнопка **⬇ PDF** → `window.print()` з `@media print` (всі 3 вкладки видимі)
+
 ## API-сервіси
 
 ### 1. SaveEcoBot
@@ -83,7 +113,6 @@ const PN = { pm25:'PM2.5', pm10:'PM10', aqi:'AQI', temp:'Температура'
 - **Proxy**: `/proxy/saveecobot/radiation` → `https://api.saveecobot.com/radiation`
 - **Maps**: `/proxy/saveecobot-maps/maps_data.js` → `https://www.saveecobot.com/storage/maps_data.js`
 - **Фільтрація**: PIP ray-casting по полігону Волині (OSM R71064 або локальний fallback)
-- **Race condition**: при завантаженні `!S.volynPoly||inRegion()`, після OSM — re-filter
 
 ### 2. IQAir (AirVisual API v2)
 - **Ключ**: `IQAIR_KEY` з `.env`
@@ -110,21 +139,43 @@ const PN = { pm25:'PM2.5', pm10:'PM10', aqi:'AQI', temp:'Температура'
 ### 5. CartoDB (тайли карти)
 - **URL**: `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png`
 - **Attribution**: OpenStreetMap + CARTO
-- **Безкоштовно, без ключа** (замінено Stadia Maps, яка вимагала auth)
+- **Безкоштовно, без ключа**
 
 ### 6. OSM Nominatim (межі Волині)
 - **Запит**: `GET https://nominatim.openstreetmap.org/lookup?osm_ids=R71064&format=geojson&polygon_geojson=1`
 - **R71064** — OSM relation Волинської області (~10910 вершин)
 - Локальний fallback GeoJSON (~36 точок) — використовується одразу, OSM завантажується async
 
-## server.js
+## server.js — ендпоінти
 
-- Статичний файловий сервер
-- CORS proxy: `/proxy/<alias>/<path>` → реальний URL
-  - `saveecobot` → `https://api.saveecobot.com`
-  - `saveecobot-maps` → `https://www.saveecobot.com/storage`
-- `/api/config` → читає `.env`, повертає JSON з ключами
-- Парсинг `.env` вручну (без dotenv, тільки вбудований `fs`)
+| Шлях | Опис |
+|---|---|
+| `GET /` | `index.html` |
+| `GET /api/config` | JSON з ключами з `.env` |
+| `GET /api/history?ts=` | Знімок БД на вказану годину |
+| `GET /api/history/timestamps?days=30` | Список доступних ts |
+| `GET /api/history/analytics?start=&end=` | `{ air, weather, radiation, ecowitt }` |
+| `GET /api/history/series?name=&source=&start=&end=` | Серія по одній станції |
+| `GET /proxy/saveecobot/<path>` | CORS proxy → api.saveecobot.com |
+| `GET /proxy/saveecobot-maps/<path>` | CORS proxy → saveecobot.com/storage |
+
+## db.js — таблиці SQLite
+
+| Таблиця | Ключ | Вміст |
+|---|---|---|
+| `stations` | `(name, source)` | Назва, lat/lng, джерело |
+| `air_readings` | `(ts, station_id)` | pm25, pm10, aqi |
+| `radiation_readings` | `(ts, station_id)` | gamma_usv |
+| `weather_readings` | `(ts, station_id)` | temp, humidity, pressure, wind |
+| `ecowitt_readings` | `ts` | Всі поля ЛНТУ метеостанції |
+| `grid_readings` | `(ts, lat, lng)` | temp, humidity, wind для сітки |
+
+## collector.js
+
+- `collect()` — паралельний збір з усіх API (SaveEcoBot, Open-Meteo, IQAir, EcoWitt, Grid)
+- `startScheduler()` — запускає collect() одразу, потім на початку кожної реальної години
+- Серверна PIP-фільтрація по `VOLYN_POLY` для SaveEcoBot
+- `fetchUrl(url)` — HTTPS GET з redirect-follow та 15s timeout
 
 ## .env
 
@@ -133,7 +184,8 @@ IQAIR_KEY=...
 ECOWITT_APP_KEY=...
 ECOWITT_API_KEY=...
 ECOWITT_MAC=24:62:AB:16:E3:68
-NODE_ENV=development
+NODE_ENV=production
+DB_PATH=/data/eco_data.db   # тільки для Docker
 ```
 
 ## Відомі деталі
@@ -142,7 +194,7 @@ NODE_ENV=development
 - **Дублікати станцій**: `usedNames` Set — другій станції додається `#id` суфікс
 - **Симуляція**: прибрана повністю, тільки реальні дані
 - **NO₂, O₃, CO, SO₂**: прибрані (немає реальних джерел для Волині)
-- **Теплова зона**: прибрана як окремий шар
-- **Вкладка "Повітря"**: прибрана з BottomPanel
 - **Кнопка оновити**: в хедері (↻)
 - **Назва**: LNTUEcoWidget
+- **Chart.js**: 4.4.1 (CDN), dark theme, `spanGaps:true` для лінійних графіків
+- **Adminer**: http://localhost:8080 → System: SQLite 3, Database: `/data/eco_data.db`

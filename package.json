@@ -12,12 +12,15 @@
     "serve": "npx serve . -p 3000"
   },
   "devDependencies": {
-    "rollup": "^4.9.0",
-    "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.5",
     "@rollup/plugin-terser": "^0.4.4",
-    "rollup-plugin-css-only": "^4.5.2",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "rollup": "^4.9.0",
+    "rollup-plugin-css-only": "^4.5.2"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.9.0"
   }
 }
